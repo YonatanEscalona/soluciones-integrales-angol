@@ -59,8 +59,8 @@ const modelos = [
           <h1 id="hero-title">Encuentra tu<br />casa <em>ideal.</em></h1>
           <p>Construimos casas y radieres en Angol y La Araucanía. Conversemos sobre el proyecto que tienes en mente.</p>
           <div class="hero-actions">
-            <a class="button button-dark" href={whatsapp} target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp <span aria-hidden="true">↗</span></a>
-            <a class="button button-outline" href="#obras">Ver obras <span aria-hidden="true">↗</span></a>
+            <a class="button button-dark" href={whatsapp} target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19 19 5M8 5h11v11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
+            <a class="button button-outline" href="#obras">Ver obras</a>
           </div>
           <ul class="hero-services" aria-label="Servicios principales"><li>Casas modulares</li><li>Casas tradicionales</li><li>Radieres</li></ul>
         </div>
@@ -94,7 +94,7 @@ const modelos = [
         <div class="works-intro">
           <h2 id="works-title">Algunas de <em>nuestras obras.</em></h2>
           <div class="works-progress" aria-hidden="true"><span id="works-current">01</span><span class="works-progress-line"></span><span>0{modelos.length}</span></div>
-          <span class="works-scroll-cue" aria-hidden="true">Desplázate para explorar <span>→</span></span>
+          <span class="works-scroll-cue" aria-hidden="true">Desplázate para explorar</span>
         </div>
         <div class="works-viewport" aria-label="Modelos y obras de casas">
           <div class="works-track">
@@ -104,7 +104,7 @@ const modelos = [
                 <div class="work-card-caption">
                   <span class="work-card-number">0{index + 1}</span>
                   <div><span class="work-card-detail">{modelo.type}{!modelo.real && ' · REFERENCIAL'}</span><h3>{modelo.title}</h3></div>
-                  <a href={`${whatsapp}?text=${encodeURIComponent(`Hola, me gustaría cotizar una casa con Soluciones Integrales. Me interesa ${modelo.title}.`)}`} target="_blank" rel="noopener noreferrer" aria-label={`Cotizar un proyecto de ${modelo.title} por WhatsApp`}>Cotizar <span aria-hidden="true">↗</span></a>
+                  <a href={`${whatsapp}?text=${encodeURIComponent(`Hola, me gustaría cotizar una casa con Soluciones Integrales. Me interesa ${modelo.title}.`)}`} target="_blank" rel="noopener noreferrer" aria-label={`Cotizar un proyecto de ${modelo.title} por WhatsApp`}>Cotizar</a>
                 </div>
               </article>
             ))}
@@ -122,28 +122,28 @@ const modelos = [
         <div class="feature-content">
           <h3>Construimos<br />tu casa.</h3>
           <p>Casas tradicionales y modulares, pensadas para tu proyecto.</p>
-          <span class="feature-action">Cotizar una casa <span aria-hidden="true">↗</span></span>
+          <span class="feature-action">Cotizar una casa</span>
         </div>
       </a>
       <a class="feature-card feature-card--wide" href="#obras">
         <img src={asset('/images/servicio-modelos.webp')} alt="" width="1774" height="887" loading="lazy" decoding="async" />
         <div class="feature-content">
           <h3>Casas para<br />inspirarte.</h3>
-          <span class="feature-action">Ver modelos <span aria-hidden="true">↗</span></span>
+          <span class="feature-action">Ver modelos</span>
         </div>
       </a>
       <a class="feature-card feature-card--radier" href={`${whatsapp}?text=${encodeURIComponent('Hola, quiero cotizar la construcción de un radier con Soluciones Integrales.')}`} target="_blank" rel="noopener noreferrer">
         <img src={asset('/images/servicio-radieres.webp')} alt="" width="1672" height="941" loading="lazy" decoding="async" />
         <div class="feature-content">
           <h3>Radieres.</h3>
-          <span class="feature-action">Cotizar radier <span aria-hidden="true">↗</span></span>
+          <span class="feature-action">Cotizar radier</span>
         </div>
       </a>
       <a class="feature-card feature-card--contact" href={`${whatsapp}?text=${encodeURIComponent('Hola, quiero conversar sobre mi proyecto de construcción con Soluciones Integrales.')}`} target="_blank" rel="noopener noreferrer">
         <img src={asset('/images/servicio-contacto.webp')} alt="" width="1672" height="941" loading="lazy" decoding="async" />
         <div class="feature-content">
           <h3>Hablemos de<br />tu proyecto.</h3>
-          <span class="feature-action">Escríbenos <span aria-hidden="true">↗</span></span>
+          <span class="feature-action">Escríbenos</span>
         </div>
       </a>
     </div>
@@ -221,7 +221,7 @@ const modelos = [
   .button-dark:hover { background: #34475a; }
   .button-outline { border: 1.5px solid #20303e; color: #20303e; background: rgb(235 246 255 / .45); }
   .button-outline:hover { background: #f8fafb; }
-  .button span { font-size: 18px; line-height: 0; }
+  .button svg { width: 16px; height: 16px; flex: none; }
   .hero-services { display: flex; align-items: center; flex-wrap: wrap; gap: 0; list-style: none; padding: 0; margin: clamp(42px, 6vh, 66px) 0 0; color: #20303e; font-size: 13px; font-weight: 700; }
   .hero-services li { padding: 0 16px; line-height: 1.4; border-left: 1px solid rgb(32 48 62 / .5); }
   .hero-services li:first-child { padding-left: 0; border-left: 0; }
@@ -251,7 +251,6 @@ const modelos = [
   .works-progress { display: flex; align-items: center; gap: 12px; margin-top: 0; color: #25313c; font-size: 12px; font-weight: 700; }
   .works-progress-line { display: block; width: 56px; height: 1px; background: #aab8c3; }
   .works-scroll-cue { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; color: #52606b; font-size: 11px; }
-  .works-scroll-cue span { font-size: 20px; }
   .works-viewport { min-width: 0; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .works-viewport::-webkit-scrollbar { display: none; }
   .works.is-scroll-driven .works-viewport { overflow: hidden; scroll-snap-type: none; }
@@ -266,7 +265,6 @@ const modelos = [
   .work-card h3 { margin: 5px 0 0; font-size: clamp(18px, 1.6vw, 24px); font-weight: 700; letter-spacing: -.035em; line-height: 1.2; }
   .work-card a { display: inline-flex; grid-column: 2; justify-self: start; align-items: center; gap: 5px; min-height: 28px; margin-top: -4px; color: #17212a; font-size: 11px; font-weight: 800; text-decoration: none; white-space: nowrap; }
   .work-card a:hover { text-decoration: underline; text-underline-offset: 4px; }
-  .work-card a span { font-size: 17px; font-weight: 400; }
   .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .feature-section { background: #f8fafb; padding: 86px clamp(16px, 3.5vw, 56px) 116px; }
   .feature-grid { max-width: 1424px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: 334px 242px; gap: 20px; }
@@ -289,7 +287,6 @@ const modelos = [
   .feature-card--primary h3 { font-size: clamp(40px, 4.1vw, 62px); }
   .feature-card p { max-width: 29ch; margin: 15px 0 0; font-size: clamp(13px, 1.1vw, 16px); font-weight: 500; line-height: 1.5; }
   .feature-action { display: inline-flex; align-items: center; justify-content: center; gap: 13px; min-height: 44px; margin-top: 22px; padding: 10px 15px; border-radius: 8px; background: #fff; color: #17212a; font-size: 12px; font-weight: 700; line-height: 1.2; }
-  .feature-action span { font-size: 17px; font-weight: 400; }
   .feature-card:hover .feature-action { background: #eaf0f4; }
   .feature-card--radier .feature-content, .feature-card--contact .feature-content { padding: 25px; }
   .feature-card--radier h3, .feature-card--contact h3 { font-size: clamp(22px, 1.7vw, 27px); }
@@ -333,7 +330,6 @@ const modelos = [
     .feature-card--radier .feature-content, .feature-card--contact .feature-content { padding: 14px; }
     .feature-card--radier h3, .feature-card--contact h3 { font-size: clamp(16px, 4.7vw, 21px); line-height: 1.15; }
     .feature-card--radier .feature-action, .feature-card--contact .feature-action { min-height: 36px; margin-top: 12px; padding: 8px 9px; gap: 5px; font-size: 10px; white-space: nowrap; }
-    .feature-card--radier .feature-action span, .feature-card--contact .feature-action span { font-size: 14px; }
     .feature-card--primary img { object-position: 67% center; }
   }
   @media (max-width: 620px) {
