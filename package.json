@@ -1,6 +1,7 @@
 {
   "name": "soluciones-integrales-angol",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.12.4",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
