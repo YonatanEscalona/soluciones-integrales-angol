@@ -8,10 +8,13 @@ interface Props {
 }
 
 const { 
-  title = "Portal de Servicios | Casa o Empresa", 
-  description = "Selecciona tu perfil para acceder a los servicios especializados para el Hogar o tu Empresa.",
+  title = "Soluciones Integrales | Construcción en Angol",
+  description = "Construcción de casas, quinchos y radieres en Angol y La Araucanía.",
   theme = 'dark',
 } = Astro.props;
+
+const canonical = Astro.url.href;
+const socialImage = new URL(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/images/hero-casa-chilena.webp`, Astro.site).href;
 ---
 
 <!doctype html>
@@ -23,6 +26,13 @@ const {
     <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
