@@ -4,13 +4,11 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
-  theme?: 'dark' | 'light';
 }
 
 const { 
   title = "Soluciones Integrales | Construcción en Angol",
   description = "Construcción de casas, quinchos y radieres en Angol y La Araucanía.",
-  theme = 'dark',
 } = Astro.props;
 
 const canonical = Astro.url.href;
@@ -18,11 +16,11 @@ const socialImage = new URL(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/imag
 ---
 
 <!doctype html>
-<html lang="es" class:list={['h-full antialiased', theme === 'light' ? 'bg-[#f8fafb] text-[#17212a]' : 'bg-slate-950 text-slate-100 [color-scheme:dark]']}>
+<html lang="es" class="h-full antialiased bg-[#f8f6f0] text-[#171916]">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content={theme === 'light' ? '#f8fafb' : '#020617'} />
+    <meta name="theme-color" content="#f8f6f0" />
     <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
@@ -36,17 +34,10 @@ const socialImage = new URL(`${import.meta.env.BASE_URL.replace(/\/$/, '')}/imag
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {theme === 'light' ? <link href="https://fonts.googleapis.com/css2?family=REM:wght@400;500;600;700&display=swap" rel="stylesheet" /> : <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />}
-    <style>
-      body {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-      }
-      body.font-home {
-        font-family: 'REM', sans-serif;
-      }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=REM:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>body { font-family: 'REM', sans-serif; }</style>
   </head>
-  <body class:list={['min-h-full flex flex-col', theme === 'light' ? 'font-home bg-[#f8fafb] selection:bg-[#d7e6f4] selection:text-[#17212a]' : 'bg-slate-950 selection:bg-blue-600 selection:text-white']}>
+  <body class="min-h-full flex flex-col bg-[#f8f6f0] selection:bg-[#f3bd1c] selection:text-[#171916]">
     <slot />
   </body>
 </html>
