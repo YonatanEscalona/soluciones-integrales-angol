@@ -26,6 +26,12 @@ const modelos = [
     alt: 'Módulo compacto referencial con fachada oscura, listones de madera y puerta vidriada',
   },
   {
+    title: 'Quincho en madera',
+    type: 'QUINCHO',
+    image: '/images/modelo-quincho-madera.webp',
+    alt: 'Quincho referencial de madera con cubierta de zinc, parrilla de ladrillo y radier de hormigón en un jardín del sur de Chile',
+  },
+  {
     title: 'Casa con terraza',
     type: 'OBRA DEL PORTAFOLIO',
     image: '/images/obra-casa-verde-hd.webp',
@@ -50,7 +56,30 @@ const modelos = [
   title="Construcción de casas, quinchos y radieres en Angol | Soluciones Integrales"
   description="Construimos casas, quinchos y radieres en Angol y La Araucanía. Explora modelos y obras, y cotiza tu proyecto por WhatsApp."
 >
-  <main>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#inicio" aria-label="Soluciones Integrales, ir al inicio">
+        <img src={asset('/images/logo-soluciones-integrales.png')} alt="" width="640" height="514" decoding="async" />
+        <span><strong>Soluciones Integrales</strong><small>Construcción profesional · Angol</small></span>
+      </a>
+      <nav class="desktop-nav" aria-label="Navegación principal">
+        <a href="#obras">Proyectos</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <a class="header-cta" href={whatsapp} target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp</a>
+      <details class="mobile-menu">
+        <summary>Menú <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg></summary>
+        <nav class="mobile-nav" aria-label="Navegación móvil">
+          <a href="#obras">Proyectos</a>
+          <a href="#servicios">Servicios</a>
+          <a href="#contacto">Contacto</a>
+          <a href={whatsapp} target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp</a>
+        </nav>
+      </details>
+    </div>
+  </header>
+  <main id="inicio">
     <div class="hero-layout">
       <section class="hero" aria-labelledby="hero-title">
         <img class="hero-photo" src={asset('/images/hero-casa-chilena.webp')} alt="Imagen ilustrativa de una casa chilena contemporánea de estuco claro, cubierta metálica y detalles en madera" width="1672" height="940" loading="eager" fetchpriority="high" decoding="async" />
@@ -96,7 +125,7 @@ const modelos = [
           <div class="works-progress" aria-hidden="true"><span id="works-current">01</span><span class="works-progress-line"></span><span>0{modelos.length}</span></div>
           <span class="works-scroll-cue" aria-hidden="true">Desplázate para explorar</span>
         </div>
-        <div class="works-viewport" aria-label="Modelos y obras de casas">
+        <div class="works-viewport" aria-label="Modelos de casas y quinchos, y obras del portafolio">
           <div class="works-track">
             {modelos.map((modelo, index) => (
               <article class="work-card">
@@ -104,7 +133,7 @@ const modelos = [
                 <div class="work-card-caption">
                   <span class="work-card-number">0{index + 1}</span>
                   <div><span class="work-card-detail">{modelo.type}{!modelo.real && ' · REFERENCIAL'}</span><h3>{modelo.title}</h3></div>
-                  <a href={`${whatsapp}?text=${encodeURIComponent(`Hola, me gustaría cotizar una casa con Soluciones Integrales. Me interesa ${modelo.title}.`)}`} target="_blank" rel="noopener noreferrer" aria-label={`Cotizar un proyecto de ${modelo.title} por WhatsApp`}>Cotizar</a>
+                  <a href={`${whatsapp}?text=${encodeURIComponent(`Hola, me gustaría cotizar ${modelo.type === 'QUINCHO' ? 'un quincho' : 'una casa'} con Soluciones Integrales. Me interesa ${modelo.title}.`)}`} target="_blank" rel="noopener noreferrer" aria-label={`Cotizar un proyecto de ${modelo.title} por WhatsApp`}>Cotizar</a>
                 </div>
               </article>
             ))}
@@ -166,7 +195,7 @@ const modelos = [
     </div>
   </section>
 
-  <section class="closing-section" aria-labelledby="closing-title">
+  <section class="closing-section" id="contacto" aria-labelledby="closing-title">
     <div class="closing-panel">
       <div>
         <h2 id="closing-title">¿Tienes un proyecto en mente?</h2>
@@ -184,6 +213,17 @@ const modelos = [
   </footer>
 
   <script>
+    const mobileMenu = document.querySelector<HTMLDetailsElement>('.mobile-menu');
+    if (mobileMenu) {
+      mobileMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => mobileMenu.removeAttribute('open')));
+      mobileMenu.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          mobileMenu.removeAttribute('open');
+          mobileMenu.querySelector('summary')?.focus();
+        }
+      });
+    }
+
     const quoteForm = document.querySelector<HTMLFormElement>('#hero-quote-form');
     quoteForm?.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -262,6 +302,19 @@ const modelos = [
 <style>
   :global(body) { margin: 0; --ink: #171916; --ink-raised: #242720; --muted: #676961; --paper: #efede6; --paper-light: #f8f6f0; --line: #cbc8bd; --yellow: #f3bd1c; --yellow-bright: #ffd33f; }
   :global(*:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .site-header { position: relative; z-index: 20; background: var(--paper-light); border-bottom: 1px solid var(--line); }
+  .header-inner { position: relative; display: flex; align-items: center; gap: 28px; max-width: 1536px; min-height: 74px; margin: 0 auto; padding: 8px clamp(16px, 3.5vw, 56px); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; margin-right: auto; color: var(--ink); text-decoration: none; }
+  .brand img { display: block; flex: none; width: 59px; height: 50px; object-fit: contain; }
+  .brand span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .brand strong { font-size: 16px; font-weight: 700; letter-spacing: -.03em; line-height: 1.05; white-space: nowrap; }
+  .brand small { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .04em; line-height: 1.2; white-space: nowrap; }
+  .desktop-nav { display: flex; align-items: center; gap: clamp(16px, 2.7vw, 36px); }
+  .desktop-nav a { color: var(--ink-raised); font-size: 13px; font-weight: 600; text-decoration: none; text-underline-offset: 5px; }
+  .desktop-nav a:hover { text-decoration: underline; }
+  .header-cta { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 17px; border-radius: 8px; background: var(--yellow); color: var(--ink); font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background-color 180ms ease-out; }
+  .header-cta:hover { background: var(--yellow-bright); }
+  .mobile-menu { display: none; }
   main { background: var(--paper-light); min-height: 100svh; padding: 16px clamp(16px, 3.5vw, 56px) 64px; }
   .hero-layout { max-width: 1424px; margin: 0 auto; }
   .hero { min-height: clamp(620px, 69vh, 740px); position: relative; isolation: isolate; overflow: hidden; border-radius: 24px; background: #9ec5e8; }
@@ -390,6 +443,21 @@ const modelos = [
     .feature-card--radier h3, .feature-card--quincho h3 { font-size: 21px; }
   }
   @media (max-width: 760px) {
+    .header-inner { min-height: 68px; padding: 7px 16px; }
+    .brand img { width: 52px; height: 46px; }
+    .brand strong { font-size: 15px; }
+    .brand small { font-size: 9px; }
+    .desktop-nav, .header-cta { display: none; }
+    .mobile-menu { display: block; flex: none; }
+    .mobile-menu summary { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 0 8px; border-radius: 7px; color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer; list-style: none; }
+    .mobile-menu summary::-webkit-details-marker { display: none; }
+    .mobile-menu summary svg { width: 20px; height: 20px; }
+    .mobile-menu[open] summary { background: var(--paper); }
+    .mobile-nav { position: absolute; top: calc(100% - 2px); right: 16px; display: grid; width: min(290px, calc(100vw - 32px)); padding: 9px; border-radius: 12px; background: var(--paper-light); box-shadow: 0 16px 34px rgb(15 17 14 / .18); }
+    .mobile-nav a { display: block; padding: 12px 13px; border-radius: 6px; color: var(--ink); font-size: 13px; font-weight: 600; text-decoration: none; }
+    .mobile-nav a:hover { background: var(--paper); }
+    .mobile-nav a:last-child { margin-top: 5px; background: var(--yellow); font-weight: 700; }
+    .mobile-nav a:last-child:hover { background: var(--yellow-bright); }
     .works-inner { display: block; padding: 32px 0 30px 18px; }
     .works-intro { padding-right: 18px; margin-bottom: 22px; }
     .works h2 { max-width: 11ch; margin: 0 0 12px; font-size: clamp(35px, 9vw, 43px); }
@@ -459,6 +527,13 @@ const modelos = [
     .quote-submit { grid-column: 1 / -1; width: 100%; height: 42px; margin-top: 0; font-size: 11px; }
   }
   @media (max-width: 360px) {
+    .header-inner { padding-inline: 12px; }
+    .brand { gap: 6px; }
+    .brand img { width: 45px; height: 40px; }
+    .brand strong { font-size: 13px; }
+    .brand small { font-size: 8px; }
+    .mobile-menu summary { padding-inline: 4px; }
+    .mobile-nav { right: 12px; }
     .hero-photo { object-position: 50% center; }
     .hero-services { max-width: 205px; }
     .hero-services li:last-child { border-left: 0; padding-left: 0; }
@@ -470,7 +545,7 @@ const modelos = [
   }
   @media (prefers-reduced-motion: reduce) {
     :global(html) { scroll-behavior: auto; }
-    .button, .quote-submit, .field :is(select, input), .feature-action { transition: none; }
+    .button, .quote-submit, .header-cta, .field :is(select, input), .feature-action { transition: none; }
     .works.is-scroll-driven { height: auto; }
     .works.is-scroll-driven .works-stage { position: relative; height: auto; }
     .works.is-scroll-driven .works-viewport { overflow-x: auto; scroll-snap-type: x mandatory; }
