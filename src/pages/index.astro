@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import HousePlanner from '../components/HousePlanner.astro';
+import BudgetRequest from '../components/BudgetRequest.astro';
 
 const whatsapp = 'https://wa.me/56935172731';
 const asset = (path: string) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}${path}`;
@@ -65,6 +67,7 @@ const modelos = [
       <nav class="desktop-nav" aria-label="Navegación principal">
         <a href="#obras">Proyectos</a>
         <a href="#servicios">Servicios</a>
+        <a href="#planifica">Planifica tu casa</a>
         <a href="#contacto">Contacto</a>
       </nav>
       <a class="header-cta" href={whatsapp} target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp</a>
@@ -73,6 +76,7 @@ const modelos = [
         <nav class="mobile-nav" aria-label="Navegación móvil">
           <a href="#obras">Proyectos</a>
           <a href="#servicios">Servicios</a>
+          <a href="#planifica">Planifica tu casa</a>
           <a href="#contacto">Contacto</a>
           <a href={whatsapp} target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp</a>
         </nav>
@@ -101,6 +105,7 @@ const modelos = [
             <label for="project-type">Tipo de proyecto</label>
             <select id="project-type" name="project-type" required>
               <option value="" disabled selected>Seleccionar</option>
+              <option value="Casa llave en mano">Casa llave en mano</option>
               <option value="Casa modular">Casa modular</option>
               <option value="Casa tradicional">Casa tradicional</option>
               <option value="Quincho">Quincho</option>
@@ -113,6 +118,7 @@ const modelos = [
         </div>
         <noscript><a href={whatsapp}>También puedes escribirnos directamente por WhatsApp.</a></noscript>
       </form>
+      <a class="planner-shortcut" href="#planifica">¿Tienes una idea? Planifica tu casa aquí</a>
     </div>
 
   </main>
@@ -179,7 +185,13 @@ const modelos = [
         </div>
       </a>
     </div>
+    <div class="turnkey-band">
+      <div><h3>Construcción llave en mano.</h3><p>Desde la estructura hasta las terminaciones, con un equipo que coordina tu proyecto. Definimos contigo los materiales, las partidas y el alcance que incluirá tu presupuesto.</p></div>
+      <a class="button button-dark" href="#contacto">Solicitar presupuesto</a>
+    </div>
   </section>
+
+  <HousePlanner />
 
   <section class="project-section" aria-labelledby="project-title">
     <div class="project-inner">
@@ -188,22 +200,14 @@ const modelos = [
         <p>Cuéntanos qué quieres construir y dónde. Con esos datos podemos empezar a conversar sobre tu proyecto.</p>
       </div>
       <ol class="project-steps">
-        <li><span class="step-number">01</span><div><h3>Elige qué construir</h3><p>Una casa, un quincho o un radier. Si todavía estás explorando opciones, también podemos conversar.</p></div></li>
-        <li><span class="step-number">02</span><div><h3>Cuéntanos el lugar</h3><p>Indica la comuna y comparte las medidas o ideas que ya tengas para el espacio.</p></div></li>
-        <li><span class="step-number">03</span><div><h3>Conversemos por WhatsApp</h3><p>Envíanos tu consulta para revisar lo que necesitas y avanzar con una cotización.</p></div></li>
+        <li><span class="step-number">01</span><div><h3>Comparte tu idea</h3><p>Una casa, un quincho o un radier. Cuéntanos la comuna y comparte tu dibujo, medidas o referencias.</p></div></li>
+        <li><span class="step-number">02</span><div><h3>Definimos el presupuesto</h3><p>Revisamos lo que necesitas y acordamos los materiales, las partidas y las terminaciones de tu proyecto.</p></div></li>
+        <li><span class="step-number">03</span><div><h3>Construimos lo acordado</h3><p>Con el alcance definido, coordinamos la ejecución y los detalles de la obra.</p></div></li>
       </ol>
     </div>
   </section>
 
-  <section class="closing-section" id="contacto" aria-labelledby="closing-title">
-    <div class="closing-panel">
-      <div>
-        <h2 id="closing-title">¿Tienes un proyecto en mente?</h2>
-        <p>Hablemos de tu casa, quincho o radier. Cuéntanos en qué comuna quieres construir.</p>
-      </div>
-      <a class="button button-light" href={`${whatsapp}?text=${encodeURIComponent('Hola, quiero cotizar un proyecto con Soluciones Integrales. Me gustaría conversar sobre lo que quiero construir.')}`} target="_blank" rel="noopener noreferrer">Cotizar por WhatsApp <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 19 19 5M8 5h11v11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></a>
-    </div>
-  </section>
+  <BudgetRequest />
 
   <footer class="site-footer">
     <div class="footer-inner">
@@ -317,6 +321,7 @@ const modelos = [
   .mobile-menu { display: none; }
   main { background: var(--paper-light); min-height: 100svh; padding: 16px clamp(16px, 3.5vw, 56px) 64px; }
   .hero-layout { max-width: 1424px; margin: 0 auto; }
+  .planner-shortcut { display: block; width: fit-content; margin: 24px auto 0; color: var(--ink); font-size: 13px; font-weight: 600; text-align: center; text-underline-offset: 5px; padding: 8px; }
   .hero { min-height: clamp(620px, 69vh, 740px); position: relative; isolation: isolate; overflow: hidden; border-radius: 24px; background: #0b0e0c; }
   .hero-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center center; z-index: 0; }
   .hero::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgb(11 14 12 / .87) 0%, rgb(11 14 12 / .69) 42%, rgb(11 14 12 / .23) 78%, rgb(11 14 12 / .15) 100%); }
@@ -405,6 +410,11 @@ const modelos = [
   .feature-card--radier .feature-content, .feature-card--quincho .feature-content { padding: 25px; }
   .feature-card--radier h3, .feature-card--quincho h3 { font-size: clamp(22px, 1.7vw, 27px); }
   .feature-card--radier .feature-action, .feature-card--quincho .feature-action { margin-top: 14px; }
+  .turnkey-band { max-width: 1424px; display: flex; align-items: center; justify-content: space-between; gap: 32px; margin: 30px auto 0; padding: 30px 34px; border-radius: 12px; background: var(--ink); color: #fff; }
+  .turnkey-band h3 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -.025em; }
+  .turnkey-band p { max-width: 74ch; margin: 12px 0 0; color: #d5d8d2; font-size: 14px; line-height: 1.65; }
+  .turnkey-band .button { flex: none; }
+  .turnkey-band .button:focus-visible { outline-color: var(--yellow); }
   .project-section { background: var(--paper-light); padding: 0 clamp(16px, 3.5vw, 56px) 116px; }
   .project-inner { max-width: 1424px; margin: 0 auto; padding-top: 72px; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(60px, 8vw, 130px); }
   .project-intro h2 { max-width: 12ch; margin: 0; font-size: clamp(38px, 4.2vw, 64px); font-weight: 600; letter-spacing: -.045em; line-height: 1.08; text-wrap: balance; }
@@ -417,13 +427,6 @@ const modelos = [
   .step-number { padding-top: 5px; color: var(--muted); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .project-steps h3 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -.025em; line-height: 1.2; }
   .project-steps p { max-width: 44ch; margin: 9px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
-  .closing-section { padding: 0 clamp(16px, 3.5vw, 56px) 0; background: var(--paper-light); }
-  .closing-panel { max-width: 1424px; margin: 0 auto; padding: clamp(44px, 5vw, 76px); border-radius: 22px; background: var(--ink); color: #fff; display: flex; justify-content: space-between; align-items: end; gap: 36px; }
-  .closing-panel h2 { max-width: 12ch; margin: 0; font-size: clamp(38px, 4.1vw, 64px); font-weight: 600; letter-spacing: -.045em; line-height: 1.08; text-wrap: balance; }
-  .closing-panel p { max-width: 47ch; margin: 20px 0 0; color: var(--paper); font-size: 16px; line-height: 1.6; }
-  .button-light { flex: none; background: var(--yellow); color: var(--ink); }
-  .button-light:hover { background: var(--yellow-bright); }
-  .closing-panel .button:focus-visible { outline-color: var(--yellow-bright); }
   .site-footer { padding: 64px clamp(16px, 3.5vw, 56px) 44px; background: #0d0f0d; color: #fff; }
   .footer-inner { max-width: 1424px; margin: 0 auto; display: flex; align-items: start; justify-content: space-between; gap: 28px; }
   .footer-inner > div { display: flex; flex-direction: column; gap: 7px; }
@@ -444,7 +447,7 @@ const modelos = [
     .feature-card--radier .feature-content, .feature-card--quincho .feature-content { padding: 20px; }
     .feature-card--radier h3, .feature-card--quincho h3 { font-size: 21px; }
   }
-  @media (max-width: 760px) {
+  @media (max-width: 1000px) {
     .header-inner { min-height: 68px; padding: 7px 16px; }
     .brand img { width: 52px; height: 46px; }
     .brand strong { font-size: 15px; }
@@ -460,6 +463,8 @@ const modelos = [
     .mobile-nav a:hover { background: var(--ink-raised); }
     .mobile-nav a:last-child { margin-top: 5px; background: var(--yellow); color: var(--ink); font-weight: 700; }
     .mobile-nav a:last-child:hover { background: var(--yellow-bright); }
+  }
+  @media (max-width: 760px) {
     .works-inner { display: block; padding: 32px 0 30px 18px; }
     .works-intro { padding-right: 18px; margin-bottom: 22px; }
     .works h2 { max-width: 11ch; margin: 0 0 12px; font-size: clamp(35px, 9vw, 43px); }
@@ -498,11 +503,10 @@ const modelos = [
     .project-steps li { grid-template-columns: 32px minmax(0, 1fr); gap: 13px; padding: 19px 0 21px; }
     .project-steps h3 { font-size: 18px; }
     .project-steps p { font-size: 13px; }
-    .closing-section { padding: 0 12px; }
-    .closing-panel { display: block; padding: 34px 26px; border-radius: 16px; }
-    .closing-panel h2 { font-size: clamp(34px, 8.5vw, 46px); }
-    .closing-panel p { font-size: 14px; }
-    .button-light { margin-top: 25px; }
+    .turnkey-band { display: block; padding: 26px 23px; margin-top: 20px; }
+    .turnkey-band h3 { font-size: 22px; }
+    .turnkey-band p { font-size: 13px; }
+    .turnkey-band .button { margin-top: 22px; }
     .site-footer { padding: 44px 18px 36px; }
     .footer-inner { display: block; }
     .footer-inner > div:last-child { margin-top: 24px; text-align: left; }
