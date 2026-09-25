@@ -23,8 +23,17 @@ test('Every offered layout fills the interior without overlapping rooms or escap
 });
 
 test('Shared links retain settings, flipped distribution and every drawing point', () => {
-  const state = {config: {...defaultConfig, kitchen: 'cerrada' as const, terrace: false, mirrored: true}, strokes: [[0, 255, 25, 50, 125, 150], [220, 30, 240, 40]]};
+  const state = {config: {...defaultConfig, layout: 'longitudinal' as const, kitchen: 'cerrada' as const, terrace: false, mirrored: true}, strokes: [[0, 255, 25, 50, 125, 150], [220, 30, 240, 40]]};
   assert.deepEqual(decodePlan(encodePlan(state)), state);
+});
+
+test('Previously shared version 1 links still open as compact layouts', () => {
+  assert.deepEqual(decodePlan('AWADAgEA'), {config: defaultConfig, strokes: []});
+  const previous = decodePlan('AZ8DAQMA');
+  assert.equal(previous?.config.area, 159);
+  assert.equal(previous?.config.bathrooms, 1);
+  assert.equal(previous?.config.mirrored, true);
+  assert.equal(previous?.config.layout, 'compacta');
 });
 
 test('Maximum drawing remains shareable in a compact URL', () => {

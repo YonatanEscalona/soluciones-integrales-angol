@@ -10,16 +10,23 @@ El planificador presenta opciones y dibujo en dos columnas, apiladas hasta 700 p
 
 ## Interacciones
 
-- Configurar una casa de un piso: superficie interior de 48–180 m², 1–4 dormitorios, 1–2 baños, cocina abierta o cerrada, terraza opcional e inversión horizontal de la distribución. El mínimo de superficie aumenta según la combinación; la terraza queda fuera de los m² interiores.
+- Configurar una casa de un piso: superficie interior de 48–180 m², 1–4 dormitorios, 1–2 baños, cocina abierta o cerrada, terraza opcional e inversión horizontal. Elegir «Compacta» (`compacta`, ambientes agrupados) o «Lateral» (`longitudinal`, dormitorios a un lado). El mínimo de superficie aumenta según la combinación; la terraza queda fuera de los m² interiores.
+- Alternar «Con muebles» y «Solo distribución», y activar o desactivar «Ver medidas». Con el lápiz desactivado, seleccionar un ambiente con clic, toque o teclado (Enter/Espacio) para consultar ancho, largo y superficie aproximados. La circulación no es seleccionable.
 - Activar «Dibujar» para agregar trazos con mouse o dedo. «Deshacer trazo» retira el último; «Borrar trazos» conserva la distribución. Son anotaciones sobre una distribución generada: no se arrastran muros ni habitaciones.
-- En móvil, «Ampliar plano» permite revisar el dibujo con desplazamiento horizontal. Desactivar el lápiz permite desplazarse sobre él.
-- «Descargar imagen» genera un PNG de 1440 × 1240 con distribución, trazos y aviso de uso orientativo. «Cotizar esta idea» prepara un mensaje de WhatsApp con resumen y enlace recuperable.
+- En móvil, «Ampliar plano» permite revisar el dibujo con desplazamiento horizontal y vertical. Desactivar el lápiz permite desplazarse sobre él.
+- «Descargar imagen» genera un PNG de 2160 × 1860 con la vista y medidas elegidas, trazos y aviso de uso orientativo, sin resaltar el ambiente seleccionado. «Cotizar esta idea» prepara un mensaje de WhatsApp con resumen y enlace recuperable.
 
-## Enlace de diseño: versión 1
+## Geometría y representación
 
-El fragmento `#planifica=<datos>` contiene bytes codificados en Base64 URL-safe, sin relleno. Su cabecera guarda versión `1`, superficie, dormitorios, baños, indicadores de terraza/inversión/cocina cerrada y cantidad de trazos. Cada trazo guarda su número de puntos y pares de coordenadas enteras de 0–255.
+`src/lib/plan-geometry.ts` calcula habitaciones, circulación, puertas y ventanas con coordenadas en metros. Las proporciones del dibujo y las dimensiones mostradas proceden de ese modelo; según la combinación puede aparecer espacio flexible o vestidor. `src/lib/plan-artwork.ts` transforma la geometría a SVG e incorpora muebles, cotas, etiquetas y selección.
 
-Límites: 24 trazos, 400 puntos totales y 200 por trazo. El decodificador valida versión, rangos, tamaños y contenido completo; rechaza enlaces inválidos. Un enlace válido restituye opciones y trazos y permite seguir editándolos. El enlace de diseño no contiene nombres, teléfono, correo ni otros datos del formulario de contacto. No hay guardado en servidor; para recuperar una idea debe conservarse su enlace.
+La vista en pantalla ajusta y recorta su `viewBox` alrededor del plano. Los trazos conservan como referencia el lienzo completo de 720 × 620; la entrada del puntero se transforma desde pantalla a esas coordenadas antes de cuantizarse. La exportación utiliza el lienzo completo, con resumen y aviso al pie.
+
+## Enlace de diseño: versión 2
+
+El fragmento `#planifica=<datos>` contiene bytes codificados en Base64 URL-safe, sin relleno. Su cabecera guarda versión `2`, superficie, dormitorios, baños, indicadores y cantidad de trazos. Los indicadores usan los valores `1` para terraza, `2` para inversión, `4` para cocina cerrada y `8` para distribución lateral. Cada trazo guarda su número de puntos y pares de coordenadas enteras de 0–255. El decodificador también acepta la versión `1` y la interpreta como distribución compacta.
+
+Límites: 24 trazos, 400 puntos totales y 200 por trazo. El decodificador valida versión, rangos, tamaños y contenido completo; rechaza enlaces inválidos. Un enlace válido restituye configuración y trazos; no guarda vista de muebles, visibilidad de cotas, ampliación ni ambiente seleccionado. El enlace de diseño no contiene nombres, teléfono, correo ni otros datos del formulario de contacto. No hay guardado en servidor; para recuperar una idea debe conservarse su enlace.
 
 ## Presupuesto y límites
 
@@ -29,13 +36,13 @@ El sitio es estático: no hay backend de recepción ni envío automático de sol
 
 ## Verificación
 
-Fuentes revisadas: `PRODUCT.md`, `src/pages/index.astro`, `src/layouts/Layout.astro`, `src/components/HousePlanner.astro`, `src/components/BudgetRequest.astro`, `src/lib/house-plan.ts` y `src/scripts/house-planner.ts`.
+Fuentes: `PRODUCT.md`, `src/pages/index.astro`, `src/layouts/Layout.astro`, `src/components/HousePlanner.astro`, `src/components/BudgetRequest.astro`, `src/lib/house-plan.ts`, `src/lib/plan-geometry.ts`, `src/lib/plan-artwork.ts` y `src/scripts/house-planner.ts`.
 
 Desde la raíz del proyecto:
 
 ```sh
-node --experimental-strip-types --test tests/house-plan.test.ts
+node --experimental-strip-types --test tests/house-plan.test.ts tests/plan-geometry.test.ts
 pnpm build
 ```
 
-Las cinco pruebas del planificador verifican geometría sin solapamientos, conservación del diseño compartido, longitud compacta, rechazo de datos inválidos y normalización de opciones. Se ejecutaron correctamente al documentar esta extensión. La revisión de navegador y exportación PNG se realiza aparte de estas pruebas de lógica.
+Las pruebas cubren geometría sin solapamientos, accesos y aberturas, proporciones, las dos distribuciones, recuperación de enlaces v1/v2, longitud compacta y rechazo de datos inválidos. La revisión de navegador y exportación PNG se realiza aparte de estas pruebas de lógica.

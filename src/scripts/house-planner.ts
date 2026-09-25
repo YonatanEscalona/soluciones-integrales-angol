@@ -1,4 +1,6 @@
 import { createRooms, decodePlan, defaultConfig, encodePlan, MAX_POINTS, MAX_STROKES, minimumArea, normalizeConfig, planMarkup, planSummary, strokeMarkup, type PlanState } from '../lib/house-plan';
+import { createPlanGeometry } from '../lib/plan-geometry';
+import { planViewBox } from '../lib/plan-artwork';
 
 const root = document.querySelector<HTMLElement>('[data-house-planner]');
 if (root) {
@@ -14,9 +16,14 @@ if (root) {
   const undo = get<HTMLButtonElement>('plan-undo');
   const clear = get<HTMLButtonElement>('plan-clear');
   const board = get<HTMLElement>('plan-board');
+  const planSvg = get<SVGSVGElement>('plan-svg');
   const strokeGroup = get<SVGGElement>('plan-strokes');
   const status = get<HTMLElement>('plan-status');
+  const layouts = [...root.querySelectorAll<HTMLInputElement>('input[name="plan-layout"]')];
+  const view = get<HTMLSelectElement>('plan-view');
+  const dimensions = get<HTMLInputElement>('plan-dimensions');
   let state: PlanState = {config: {...defaultConfig}, strokes: []};
+  let selectedRoom: string | undefined;
   let drawing = false;
   let activePointer: number | null = null;
 
@@ -38,27 +45,44 @@ if (root) {
     kitchen.value = c.kitchen;
     terrace.checked = c.terrace;
     mirror.setAttribute('aria-pressed', String(c.mirrored));
+    layouts.forEach(input => input.checked = input.value === c.layout);
     get<HTMLElement>('plan-area-value').textContent = `${c.area} m²`;
     get<HTMLElement>('plan-area-help').textContent = `Desde ${area.min} m² para esta combinación orientativa.`;
     get<HTMLElement>('plan-count').textContent = `${c.bedrooms} dormitorio${c.bedrooms > 1 ? 's' : ''} · ${c.bathrooms} baño${c.bathrooms > 1 ? 's' : ''}`;
-    get<SVGGElement>('plan-geometry').innerHTML = planMarkup(c);
+    get<SVGGElement>('plan-geometry').innerHTML = planMarkup(c, {furniture: view.value === 'furnished', dimensions: dimensions.checked, selectedRoom});
+    planSvg.setAttribute('viewBox', planViewBox(c));
+    const selected = createPlanGeometry(c).rooms.find(room => room.id === selectedRoom);
+    get<HTMLElement>('plan-room-detail').querySelector('strong')!.textContent = selected?.label || 'Explora tu distribución';
+    get<HTMLElement>('plan-room-detail').querySelector('span')!.textContent = selected ? `${selected.w.toFixed(2).replace('.', ',')} × ${selected.h.toFixed(2).replace('.', ',')} m · ${selected.area.toFixed(1).replace('.', ',')} m² aprox.` : 'Selecciona un ambiente del plano para ver sus dimensiones.';
     get<SVGDescElement>('plan-svg-description').textContent = `${planSummary(c)}. ${createRooms(c).map(r => `${r.label}: ${r.area.toFixed(1)} m²`).join('. ')}.`;
     strokeGroup.innerHTML = strokeMarkup(state.strokes);
     syncShare();
   }
   function updateOptions() {
     const requestedArea = Number(area.value);
-    state.config = normalizeConfig({area: requestedArea, bedrooms: Number(bedrooms.value), bathrooms: Number(bathrooms.value), kitchen: kitchen.value === 'cerrada' ? 'cerrada' : 'abierta', terrace: terrace.checked, mirrored: state.config.mirrored});
+    state.config = normalizeConfig({area: requestedArea, bedrooms: Number(bedrooms.value), bathrooms: Number(bathrooms.value), kitchen: kitchen.value === 'cerrada' ? 'cerrada' : 'abierta', terrace: terrace.checked, mirrored: state.config.mirrored, layout: layouts.find(input => input.checked)?.value === 'longitudinal' ? 'longitudinal' : 'compacta'});
     status.textContent = state.config.area > requestedArea ? `Ajustamos la superficie a ${state.config.area} m² para distribuir los ambientes que elegiste.` : '';
     render();
   }
-  for (const input of [area, bedrooms, bathrooms, kitchen, terrace]) input.addEventListener('input', updateOptions);
+  for (const input of [area, bedrooms, bathrooms, kitchen, terrace, ...layouts]) input.addEventListener('input', updateOptions);
+  for (const input of [view, dimensions]) input.addEventListener('change', render);
+  function selectRoom(event: MouseEvent | KeyboardEvent) {
+    if (drawing || !(event.target instanceof Element)) return;
+    const target = event.target.closest<SVGGElement>('[data-room]');
+    if (!target || event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    selectedRoom = target.dataset.room;
+    render();
+    if (event instanceof KeyboardEvent) get<SVGGElement>('plan-geometry').querySelector<SVGGElement>(`[data-room="${selectedRoom}"]`)?.focus({preventScroll: true});
+  }
+  board.addEventListener('click', selectRoom);
+  board.addEventListener('keydown', selectRoom);
   mirror.addEventListener('click', () => {state.config.mirrored = !state.config.mirrored; render();});
   pen.addEventListener('click', () => {
     drawing = !drawing;
     pen.setAttribute('aria-pressed', String(drawing));
     board.classList.toggle('is-drawing', drawing);
-    get<HTMLElement>('drawing-help').textContent = drawing ? 'Lápiz activo. Dibuja sobre el plano; pulsa “Dibujar” para volver a desplazarte.' : board.classList.contains('is-zoomed') ? 'Plano ampliado. Desliza a los lados para ver todos los ambientes.' : 'Activa “Dibujar” para marcar ideas con el dedo o el mouse.';
+    get<HTMLElement>('drawing-help').textContent = drawing ? 'Lápiz activo. Dibuja sobre el plano; pulsa “Dibujar” para volver a desplazarte.' : board.classList.contains('is-zoomed') ? 'Plano ampliado. Desliza sobre el plano para ver todos los ambientes.' : 'Activa “Dibujar” para marcar ideas con el dedo o el mouse.';
   });
   get<HTMLButtonElement>('plan-zoom').addEventListener('click', (event) => {
     const button = event.currentTarget as HTMLButtonElement;
@@ -66,12 +90,13 @@ if (root) {
     button.setAttribute('aria-pressed', String(zoomed));
     button.textContent = zoomed ? 'Ajustar plano' : 'Ampliar plano';
     board.classList.toggle('is-zoomed', zoomed);
-    get<HTMLElement>('drawing-help').textContent = zoomed ? 'Plano ampliado. Desactiva el lápiz para deslizarte a los lados.' : drawing ? 'Lápiz activo. Dibuja sobre el plano; pulsa “Dibujar” para volver a desplazarte.' : 'Activa “Dibujar” para marcar ideas con el dedo o el mouse.';
+    get<HTMLElement>('drawing-help').textContent = zoomed ? 'Plano ampliado. Desactiva el lápiz para desplazarte por el plano.' : drawing ? 'Lápiz activo. Dibuja sobre el plano; pulsa “Dibujar” para volver a desplazarte.' : 'Activa “Dibujar” para marcar ideas con el dedo o el mouse.';
   });
   const pointCount = () => state.strokes.reduce((sum, s) => sum + s.length / 2, 0);
   const point = (event: PointerEvent) => {
-    const bounds = board.getBoundingClientRect();
-    return [Math.round(Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width)) * 255), Math.round(Math.min(1, Math.max(0, (event.clientY - bounds.top) / bounds.height)) * 255)];
+    const matrix = planSvg.getScreenCTM();
+    const local = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix!.inverse());
+    return [Math.round(Math.min(1, Math.max(0, local.x / 720)) * 255), Math.round(Math.min(1, Math.max(0, local.y / 620)) * 255)];
   };
   board.addEventListener('pointerdown', (event) => {
     if (!drawing || !event.isPrimary || event.button !== 0) return;
@@ -109,14 +134,14 @@ if (root) {
     const button = get<HTMLButtonElement>('plan-download');
     button.disabled = true;
     try {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1240" viewBox="0 0 720 620"><rect width="720" height="620" fill="#fff"/>${planMarkup(state.config)}${strokeMarkup(state.strokes)}</svg>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="2160" height="1860" viewBox="0 0 720 620"><rect width="720" height="620" fill="#fff"/>${planMarkup(state.config, {furniture: view.value === 'furnished', dimensions: dimensions.checked})}${strokeMarkup(state.strokes)}</svg>`;
       const svgUrl = URL.createObjectURL(new Blob([svg], {type: 'image/svg+xml'}));
       try {
         const image = new Image();
         image.src = svgUrl;
         await image.decode();
         const canvas = document.createElement('canvas');
-        canvas.width = 1440; canvas.height = 1240;
+        canvas.width = 2160; canvas.height = 1860;
         const context = canvas.getContext('2d');
         if (!context) throw new Error('Canvas unavailable');
         context.drawImage(image, 0, 0);
@@ -145,6 +170,7 @@ if (root) {
     get<HTMLButtonElement>('plan-zoom').textContent = 'Ampliar plano';
     get<HTMLElement>('drawing-help').textContent = 'Activa “Dibujar” para marcar ideas con el dedo o el mouse.';
     state = shared;
+    selectedRoom = undefined;
     render();
     status.textContent = 'Diseño compartido cargado. Puedes revisarlo o seguir ajustándolo.';
     requestAnimationFrame(() => root!.closest('section')?.scrollIntoView({behavior: 'instant'}));

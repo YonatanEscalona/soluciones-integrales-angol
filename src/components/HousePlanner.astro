@@ -1,5 +1,6 @@
 ---
 import { defaultConfig, planMarkup } from '../lib/house-plan';
+import { planViewBox } from '../lib/plan-artwork';
 ---
 
 <section class="planner-section" id="planifica" aria-labelledby="planner-title">
@@ -11,6 +12,10 @@ import { defaultConfig, planMarkup } from '../lib/house-plan';
     <div class="planner-workspace">
       <form class="planner-options" aria-label="Opciones de tu casa">
         <h3>Tu casa de un piso</h3>
+        <fieldset class="layout-choices"><legend>Distribución</legend><div>
+          <label><input type="radio" name="plan-layout" value="compacta" checked /><span>Compacta</span><small>Ambientes agrupados</small></label>
+          <label><input type="radio" name="plan-layout" value="longitudinal" /><span>Lateral</span><small>Dormitorios a un lado</small></label>
+        </div></fieldset>
         <label for="plan-area">Superficie interior <output id="plan-area-value" for="plan-area">96 m²</output></label>
         <input id="plan-area" type="range" min="84" max="180" step="1" value="96" aria-describedby="plan-area-help" aria-valuetext="96 metros cuadrados" />
         <p class="area-help" id="plan-area-help">Desde 84 m² para esta combinación.</p>
@@ -26,22 +31,27 @@ import { defaultConfig, planMarkup } from '../lib/house-plan';
       </form>
       <div class="planner-preview">
         <div class="preview-heading"><h3>Tu distribución</h3><span id="plan-count">3 dormitorios · 2 baños</span></div>
+        <div class="plan-view-options">
+          <label for="plan-view">Vista<select id="plan-view"><option value="furnished">Con muebles</option><option value="technical">Solo distribución</option></select></label>
+          <label class="dimension-choice"><input id="plan-dimensions" type="checkbox" checked /> Ver medidas</label>
+        </div>
         <div class="planner-tools" role="group" aria-label="Herramientas de dibujo">
           <button id="plan-pen" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /></svg>Dibujar</button>
           <button id="plan-undo" type="button" disabled>Deshacer trazo</button>
           <button id="plan-clear" type="button" disabled>Borrar trazos</button>
           <button id="plan-zoom" type="button" aria-pressed="false">Ampliar plano</button>
         </div>
-        <p class="drawing-help" id="drawing-help">Activa “Dibujar” para marcar ideas con el dedo o el mouse.</p>
+        <p class="drawing-help" id="drawing-help">Selecciona un ambiente para ver sus medidas, o activa “Dibujar” para marcar tus ideas.</p>
         <div class="plan-viewport"><div class="plan-board" id="plan-board">
-          <svg id="plan-svg" viewBox="0 0 720 620" role="img" aria-labelledby="plan-svg-title plan-svg-description">
+          <svg id="plan-svg" viewBox={planViewBox(defaultConfig)} role="group" aria-roledescription="Plano interactivo" aria-labelledby="plan-svg-title plan-svg-description">
             <title id="plan-svg-title">Distribución aproximada de tu casa</title>
             <desc id="plan-svg-description">Casa de 96 metros cuadrados con 3 dormitorios, 2 baños, cocina abierta y terraza exterior.</desc>
             <g id="plan-geometry" set:html={planMarkup(defaultConfig)} />
-            <g id="plan-strokes" aria-hidden="true" />
+            <g id="plan-strokes" aria-hidden="true" pointer-events="none" />
           </svg>
         </div></div>
-        <div class="plan-legend" aria-label="Referencias del plano"><span><b>D</b> Dormitorio</span><span><b>B</b> Baño</span><span>Terraza fuera de los m² interiores</span></div>
+        <div class="plan-room-detail" id="plan-room-detail" role="status" aria-live="polite"><strong>Explora tu distribución</strong><span>Selecciona un ambiente del plano para ver sus dimensiones.</span></div>
+        <div class="plan-legend" aria-label="Referencias del plano"><span class="window-key">Ventanas</span><span>Muros y puertas en negro</span><span>Terraza fuera de los m² interiores</span></div>
       </div>
     </div>
     <div class="planner-share">
@@ -68,6 +78,13 @@ import { defaultConfig, planMarkup } from '../lib/house-plan';
   .planner-options { min-width: 0; padding: 32px; background: var(--ink); color: #fff; }
   h3 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -.025em; line-height: 1.3; }
   .planner-options > h3 { margin-bottom: 30px; }
+  .layout-choices { border: 0; padding: 0; margin: 0 0 26px; }
+  .layout-choices legend { padding: 0; margin-bottom: 9px; font-size: 13px; font-weight: 600; }
+  .layout-choices > div { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .planner-options .layout-choices label { display: grid; grid-template-columns: 16px 1fr; justify-content: start; gap: 6px; padding: 12px 9px; margin: 0; border: 1px solid #62665f; border-radius: 7px; cursor: pointer; }
+  .layout-choices label:has(:checked) { border-color: var(--yellow); background: var(--ink-raised); }
+  .layout-choices input { margin: 0; width: 15px; height: 15px; accent-color: var(--yellow); }
+  .layout-choices small { grid-column: 1 / -1; color: #d5d8d2; font-size: 10px; line-height: 1.5; font-weight: 400; }
   .planner-options label { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; font-size: 13px; font-weight: 600; }
   .planner-options output { color: var(--yellow); font-size: 19px; font-weight: 700; }
   input[type='range'] { width: 100%; min-height: 36px; cursor: pointer; accent-color: var(--yellow); }
@@ -88,7 +105,11 @@ import { defaultConfig, planMarkup } from '../lib/house-plan';
   .planner-preview { min-width: 0; padding: 27px 30px 22px; }
   .preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .preview-heading span { font-size: 12px; color: var(--muted); }
-  .planner-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  .plan-view-options { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .plan-view-options label { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+  .plan-view-options select { width: auto; background: #fff; color: var(--ink); border-color: var(--line); padding-inline: 12px 28px; font-size: 12px; }
+  .dimension-choice { cursor: pointer; }
+  .planner-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
   .planner-tools button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 8px 11px; font-size: 11px; }
   .planner-tools button:hover:enabled { background: #f0f1ef; }
   .planner-tools button[aria-pressed='true'] { background: var(--yellow); border-color: var(--yellow); }
@@ -98,10 +119,18 @@ import { defaultConfig, planMarkup } from '../lib/house-plan';
   .plan-board { width: 100%; max-width: 720px; margin: 0 auto; user-select: none; -webkit-user-select: none; }
   .plan-viewport { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-color: var(--ink) #fff; }
   #plan-zoom { display: none; }
-  .plan-board svg { display: block; width: 100%; height: auto; }
+  .plan-board svg { display: block; width: 100%; height: auto; max-height: 640px; }
+  .plan-board :global(.plan-room-target) { cursor: pointer; outline: none; }
+  .plan-board :global(.plan-room-target:focus-visible rect), .plan-board :global(.plan-room-target:hover rect) { stroke: var(--yellow); stroke-width: 3px; }
+  .plan-board.is-drawing :global(.plan-room-target) { pointer-events: none; }
+  .plan-room-detail { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 0; margin: 0 0 12px; border-block: 1px solid var(--line); }
+  .plan-room-detail strong { font-size: 13px; font-weight: 600; }
+  .plan-room-detail span { color: var(--muted); font-size: 12px; line-height: 1.5; text-align: right; font-variant-numeric: tabular-nums; }
   .plan-board.is-drawing { touch-action: none; cursor: crosshair; outline: 2px dashed var(--yellow); outline-offset: -2px; }
   .plan-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 11px; color: var(--muted); }
   .plan-legend b { color: var(--ink); }
+  .window-key { display: inline-flex; align-items: center; gap: 6px; }
+  .window-key::before { content: ''; width: 16px; height: 3px; background: var(--yellow); border-block: 1px solid var(--ink); }
   .planner-share { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 27px 0 0; }
   .planner-share h3 { font-size: 20px; }
   .planner-share p { margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
@@ -119,16 +148,24 @@ import { defaultConfig, planMarkup } from '../lib/house-plan';
     .planner-workspace { grid-template-columns: 1fr; }
     .planner-options { padding: 24px 20px; }
     .planner-options > h3 { margin-bottom: 22px; }
+    .planner-options select { font-size: 16px; }
     .planner-guide { margin-top: 20px; padding-top: 17px; }
     .planner-guide p { max-width: 49ch; }
     .planner-preview { padding: 22px 12px 20px; }
     .preview-heading { flex-wrap: wrap; padding-inline: 4px; gap: 5px; }
     .preview-heading h3 { font-size: 19px; }
     .preview-heading span { font-size: 10px; }
+    .plan-view-options { gap: 12px; margin-top: 16px; }
+    .plan-view-options select { font-size: 16px; padding-inline: 8px; max-width: 190px; }
+    .plan-view-options label { font-size: 11px; }
+    .plan-room-detail { align-items: start; flex-direction: column; gap: 5px; }
+    .plan-room-detail span { text-align: left; }
     .planner-tools { gap: 6px; margin-top: 16px; }
     .planner-tools button { padding-inline: 9px; font-size: 10px; }
     #plan-zoom { display: inline-flex; }
     .plan-board.is-zoomed { width: 640px; max-width: none; margin-inline: 0; }
+    .plan-board.is-zoomed svg { max-height: none; }
+    .plan-viewport:has(.is-zoomed) { max-height: 75svh; overflow: auto; }
     .plan-legend { font-size: 10px; gap: 6px 12px; }
     .planner-share-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
     .planner-share-actions :is(a,button) { font-size: 11px; padding-inline: 10px; }
