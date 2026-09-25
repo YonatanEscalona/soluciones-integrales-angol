@@ -1,4 +1,5 @@
 import { createPlanGeometry, type GeometryConfig, type Room } from './plan-geometry.ts';
+import { bathroomFixtureMarkup } from './bathroom-fixtures.ts';
 
 export type PlanView = { furniture?: boolean; dimensions?: boolean; selectedRoom?: string };
 type ArtworkConfig = GeometryConfig & { terrace: boolean; mirrored: boolean };
@@ -48,12 +49,7 @@ function furniture(r: Room, scale: number, width: number) {
     for (const x of [hx + .16, hx + .44]) for (const y of [.35, .59]) shapes += `<circle cx="${x}" cy="${y}" r=".075" fill="none"/>`;
     if (r.h > 3.8 && r.w > 3.1) shapes += rect(.6, 1.55, 1.5, .65, '#e9ebe6');
   } else if (r.kind === 'bathroom') {
-    const sx = r.w - .96, showerH = Math.min(.9, r.h - .24);
-    shapes += rect(sx, .12, .84, showerH, '#f4f5f2');
-    shapes += path(`M${sx + .05} .17l.74 ${showerH - .1}m0 -${showerH - .1}l-.74 ${showerH - .1}`);
-    shapes += rect(sx - .83, .14, .52, .24, '#fff');
-    shapes += `<ellipse cx="${sx - .57}" cy=".57" rx=".24" ry=".3" fill="#fff"/><ellipse cx="${sx - .57}" cy=".58" rx=".15" ry=".21" fill="none"/>`;
-    if (r.w > 3.4) shapes += rect(.18, .14, .6, .42, '#fff', .06) + `<ellipse cx=".48" cy=".35" rx=".21" ry=".13" fill="none"/>`;
+    shapes += bathroomFixtureMarkup(r);
   } else if (r.kind === 'flex') {
     if (r.label === 'Vestidor') {
       shapes += rect(r.w - .65, .18, .48, r.h - .36, '#e9ebe6');
@@ -93,10 +89,13 @@ export function createPlanArtwork(c: ArtworkConfig, view: PlanView = {}) {
       markup += `<path d="${segment}" stroke="${yellow}" stroke-width="${n(1.8 / scale)}"/><path d="M${n(x + (horizontal ? 0 : offset))} ${n(y + (horizontal ? offset : 0))}${horizontal ? 'h' : 'v'}${length}M${n(x - (horizontal ? 0 : offset))} ${n(y - (horizontal ? offset : 0))}${horizontal ? 'h' : 'v'}${length}" stroke="${muted}" stroke-width="${n(.8 / scale)}"/>`;
     } else if (o.kind === 'door') {
       const direction = o.swing || 1;
-      const openX = horizontal ? x : x + length * direction, openY = horizontal ? y + length * direction : y;
-      const shutX = horizontal ? x + length : x, shutY = horizontal ? y : y + length;
-      const sweep = horizontal ? direction > 0 ? 0 : 1 : direction > 0 ? 1 : 0;
-      markup += `<path d="M${x} ${y}L${n(openX)} ${n(openY)}" stroke="${ink}" stroke-width="${n(1.4 / scale)}"/><path d="M${n(openX)} ${n(openY)}A${length} ${length} 0 0 ${sweep} ${n(shutX)} ${n(shutY)}" stroke="${line}" stroke-width="${n(.9 / scale)}" fill="none"/>`;
+      const atEnd = o.hinge === 'end';
+      const hingeX = x + (horizontal && atEnd ? length : 0), hingeY = y + (!horizontal && atEnd ? length : 0);
+      const openX = horizontal ? hingeX : hingeX + length * direction, openY = horizontal ? hingeY + length * direction : hingeY;
+      const shutX = horizontal ? x + (atEnd ? 0 : length) : x, shutY = horizontal ? y : y + (atEnd ? 0 : length);
+      const baseSweep = horizontal ? direction > 0 ? 0 : 1 : direction > 0 ? 1 : 0;
+      const sweep = atEnd ? 1 - baseSweep : baseSweep;
+      markup += `<path d="M${n(hingeX)} ${n(hingeY)}L${n(openX)} ${n(openY)}" stroke="${ink}" stroke-width="${n(1.4 / scale)}"/><path d="M${n(openX)} ${n(openY)}A${length} ${length} 0 0 ${sweep} ${n(shutX)} ${n(shutY)}" stroke="${line}" stroke-width="${n(.9 / scale)}" fill="none"/>`;
     }
     return markup;
   }).join('');
@@ -114,6 +113,11 @@ export function createPlanArtwork(c: ArtworkConfig, view: PlanView = {}) {
     const labelRoomOffset = furnished ? Math.min(r.h * .77, r.h - (!compact && dimensions ? 40 : 23) / scale) : r.h / 2 - 5 / scale;
     const cy = py(r.y + labelRoomOffset);
     const line2 = `${r.area.toFixed(1).replace('.', ',')} m²`;
+    if (r.kind === 'bathroom' && furnished) {
+      const bathLabel = r.access === 'suite' ? 'Suite' : r.short;
+      const by = py(r.y + r.h * .6);
+      return `<g pointer-events="none"><text x="${cx}" y="${by}" text-anchor="middle" font-size="10" font-weight="600" paint-order="stroke" stroke="#f0f2ee" stroke-width="3" stroke-linejoin="round">${bathLabel}</text></g>`;
+    }
     const labelWidth = Math.min(r.w * scale - 8, Math.max(label.length * fontSize * .58, 82));
     const blockHeight = !compact && dimensions ? 46 : 32;
     return `<g pointer-events="none"><rect x="${n(cx - labelWidth / 2)}" y="${n(cy - 15)}" width="${n(labelWidth)}" height="${blockHeight}" rx="2" fill="${r.kind === 'bathroom' || r.kind === 'kitchen' ? '#f0f2ee' : '#f8f9f6'}" fill-opacity=".94"/><text x="${cx}" y="${cy}" font-size="${fontSize}" font-weight="600" text-anchor="middle">${label}</text><text x="${cx}" y="${n(cy + 16)}" fill="${muted}" font-size="12" text-anchor="middle">${line2}</text>${!compact && dimensions ? `<text x="${cx}" y="${n(cy + 30)}" fill="${muted}" font-size="10" text-anchor="middle">${metres(r.w)} × ${metres(r.h)} m</text>` : ''}</g>`;

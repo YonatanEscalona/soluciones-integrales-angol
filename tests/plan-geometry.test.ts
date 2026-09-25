@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { createPlanGeometry } from '../src/lib/plan-geometry.ts';
+import { createPlanGeometry, minimumPlanArea } from '../src/lib/plan-geometry.ts';
 import type { GeometryConfig, Opening, Room } from '../src/lib/plan-geometry.ts';
 
 const EPSILON = 1e-7;
@@ -10,11 +10,18 @@ function configurations(): GeometryConfig[] {
   const result: GeometryConfig[] = [];
   for (let bedrooms = 1; bedrooms <= 4; bedrooms++) {
     for (let bathrooms = 1; bathrooms <= 2; bathrooms++) {
-      const minimum = Math.max(48, bedrooms * 24 + (bathrooms - 1) * 12);
-      for (const area of new Set([minimum, Math.max(minimum, 96), 180])) {
-        for (const layout of ['compacta', 'longitudinal'] as const) {
-          for (const kitchen of ['abierta', 'cerrada'] as const) {
-            result.push({ area, bedrooms, bathrooms, layout, kitchen });
+      for (const bathroomMode of ['compartidos', 'suite'] as const) {
+        for (const bathroomSize of ['estandar', 'amplio'] as const) {
+          for (const bedroomPriority of ['equilibrada', 'principal'] as const) {
+            const preferences = { bedrooms, bathrooms, bathroomMode, bathroomSize, bedroomPriority };
+            const minimum = minimumPlanArea(preferences);
+            for (const area of new Set([minimum, Math.max(minimum, 96), 180])) {
+              for (const layout of ['compacta', 'longitudinal'] as const) {
+                for (const kitchen of ['abierta', 'cerrada'] as const) {
+                  result.push({ area, layout, kitchen, ...preferences });
+                }
+              }
+            }
           }
         }
       }
@@ -78,7 +85,7 @@ test('Each opening spans a complete shared or exterior wall segment and stays in
   }
 });
 
-test('All rooms are reachable from the main entrance, with private rooms opening to circulation', () => {
+test('All rooms are reachable; bedrooms and shared baths open to circulation while the suite opens only to the main bedroom', () => {
   for (const config of configurations()) {
     const plan = createPlanGeometry(config);
     const context = JSON.stringify(config);
@@ -101,8 +108,11 @@ test('All rooms are reachable from the main entrance, with private rooms opening
       pending.push(...graph.get(id)!);
     }
     assert.equal(reachable.size, plan.rooms.length, `Inaccessible rooms: ${plan.rooms.filter(room => !reachable.has(room.id)).map(room => room.id).join(', ')} in ${context}`);
+    assert.equal(plan.rooms.filter(room => room.access === 'suite').length, config.bathrooms === 2 && config.bathroomMode === 'suite' ? 1 : 0, `Incorrect suite count: ${context}`);
     for (const room of plan.rooms.filter(room => room.kind === 'bedroom' || room.kind === 'bathroom')) {
-      assert.ok([...graph.get(room.id)!].some(id => plan.rooms.find(candidate => candidate.id === id)?.kind === 'hall'), `Private room lacks direct circulation access: ${room.id} in ${context}`);
+      const neighbors = [...graph.get(room.id)!];
+      if (room.access === 'suite') assert.deepEqual(neighbors, ['bed-1'], `Suite must connect only to the main bedroom: ${context}`);
+      else assert.ok(neighbors.some(id => plan.rooms.find(candidate => candidate.id === id)?.kind === 'hall'), `Room lacks direct circulation access: ${room.id} in ${context}`);
     }
   }
 });
@@ -125,12 +135,13 @@ test('Bathroom proportions and dressing-room access remain valid through every a
   for (let bedrooms = 1; bedrooms <= 4; bedrooms++) {
     for (let bathrooms = 1; bathrooms <= 2; bathrooms++) {
       for (const layout of ['compacta', 'longitudinal'] as const) {
-        for (let area = Math.max(48, bedrooms * 24 + (bathrooms - 1) * 12); area <= 180; area++) {
+        for (let area = minimumPlanArea({ bedrooms, bathrooms }); area <= 180; area++) {
           const config = { area, bedrooms, bathrooms, layout, kitchen: 'abierta' as const };
           const plan = createPlanGeometry(config);
           const context = JSON.stringify(config);
           for (const bathroom of plan.rooms.filter(room => room.kind === 'bathroom')) {
             assert.ok(bathroom.area >= 4 - EPSILON && bathroom.area <= 6 + EPSILON, `Bathroom should stay between 4 and 6 m²: ${bathroom.area} in ${context}`);
+            assert.ok(Math.min(bathroom.w, bathroom.h) >= 1.8 - EPSILON, `Bathroom is too narrow: ${context}`);
             const doors = plan.openings.filter(opening => opening.kind === 'door' && touchingRooms(opening, [bathroom]).length);
             assert.ok(doors.some(door => door.length >= .8 - EPSILON), `Bathroom has no 0.8 m door: ${context}`);
           }
@@ -150,6 +161,55 @@ test('Bathroom proportions and dressing-room access remain valid through every a
           }
         }
       }
+    }
+  }
+});
+
+test('Bathroom size, entry corners and hinges match the furniture renderer contract', () => {
+  for (const config of configurations()) {
+    const plan = createPlanGeometry(config);
+    for (const bathroom of plan.rooms.filter(room => room.kind === 'bathroom')) {
+      const context = `${bathroom.id}: ${JSON.stringify(config)}`;
+      assert.ok(close(bathroom.w, config.bathroomSize === 'amplio' ? 2.6 : 2.4), context);
+      assert.ok(close(bathroom.h, config.bathroomSize === 'amplio' ? 2.2 : 1.9), context);
+      assert.ok(Math.min(bathroom.w, bathroom.h) >= 1.8, context);
+      const doors = plan.openings.filter(opening => opening.kind === 'door' && touchingRooms(opening, [bathroom]).length);
+      assert.equal(doors.length, 1, `Bathroom needs one unambiguous entrance: ${context}`);
+      const door = doors[0];
+      assert.ok(close(door.length, .8), context);
+      if (bathroom.bathroomEntry === 'left') {
+        assert.equal(door.axis, 'y', context);
+        assert.ok(close(door.x, bathroom.x) && close(door.y, bathroom.y + .15), context);
+        assert.equal(door.hinge, 'start', context);
+        assert.equal(door.swing, 1, context);
+      } else if (bathroom.bathroomEntry === 'right') {
+        assert.equal(door.axis, 'y', context);
+        assert.ok(close(door.x, bathroom.x + bathroom.w) && close(door.y, bathroom.y + bathroom.h - .95), context);
+        assert.equal(door.hinge, 'end', context);
+        assert.equal(door.swing, -1, context);
+      } else if (bathroom.bathroomEntry === 'top') {
+        assert.equal(door.axis, 'x', context);
+        assert.ok(close(door.x, bathroom.x + bathroom.w - .95) && close(door.y, bathroom.y), context);
+        assert.equal(door.hinge, 'end', context);
+        assert.equal(door.swing, 1, context);
+      } else assert.fail(`Unexpected bathroom entry: ${context}`);
+    }
+  }
+});
+
+test('Bedrooms remain usable and prioritizing the main bedroom increases its allocation', () => {
+  for (const config of configurations()) {
+    const plan = createPlanGeometry(config);
+    const context = JSON.stringify(config);
+    const main = plan.rooms.find(room => room.id === 'bed-1')!;
+    assert.equal(main.label, 'Dormitorio principal', context);
+    for (const bedroom of plan.rooms.filter(room => room.kind === 'bedroom')) {
+      assert.ok(Math.min(bedroom.w, bedroom.h) >= 2.5 - EPSILON, `Bedroom below 2.5 m minimum dimension: ${bedroom.id}, ${bedroom.w}×${bedroom.h} in ${context}`);
+    }
+    if (config.bedroomPriority === 'principal' && config.bedrooms > 1) {
+      const baseline = createPlanGeometry({ ...config, bedroomPriority: 'equilibrada' }).rooms.find(room => room.id === 'bed-1')!;
+      assert.ok(main.area > baseline.area + EPSILON, `Main bedroom priority does not increase area: ${main.area} vs ${baseline.area} in ${context}`);
+      assert.ok(plan.rooms.filter(room => room.kind === 'bedroom' && room.id !== 'bed-1').every(room => main.area > room.area + EPSILON), `Prioritized main bedroom is not the largest: ${context}`);
     }
   }
 });

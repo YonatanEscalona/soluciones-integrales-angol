@@ -1,6 +1,7 @@
 import { createRooms, decodePlan, defaultConfig, encodePlan, MAX_POINTS, MAX_STROKES, minimumArea, normalizeConfig, planMarkup, planSummary, strokeMarkup, type PlanState } from '../lib/house-plan';
 import { createPlanGeometry } from '../lib/plan-geometry';
 import { planViewBox } from '../lib/plan-artwork';
+import { bathroomDetailMarkup } from '../lib/bathroom-fixtures';
 
 const root = document.querySelector<HTMLElement>('[data-house-planner]');
 if (root) {
@@ -9,6 +10,9 @@ if (root) {
   const area = get<HTMLInputElement>('plan-area');
   const bedrooms = get<HTMLSelectElement>('plan-bedrooms');
   const bathrooms = get<HTMLSelectElement>('plan-bathrooms');
+  const bathroomMode = get<HTMLSelectElement>('plan-bathroom-mode');
+  const bathroomSize = get<HTMLSelectElement>('plan-bathroom-size');
+  const bedroomPriority = get<HTMLSelectElement>('plan-bedroom-priority');
   const kitchen = get<HTMLSelectElement>('plan-kitchen');
   const terrace = get<HTMLInputElement>('plan-terrace');
   const mirror = get<HTMLButtonElement>('plan-mirror');
@@ -26,6 +30,17 @@ if (root) {
   let selectedRoom: string | undefined;
   let drawing = false;
   let activePointer: number | null = null;
+  const panelButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-plan-panel]')];
+  function showPanel(panel: 'options' | 'preview', moveFocus = true) {
+    root!.dataset.mobilePanel = panel;
+    panelButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.planPanel === panel)));
+    if (moveFocus && matchMedia('(max-width: 700px)').matches) {
+      get<HTMLElement>(`plan-${panel}-heading`).focus({preventScroll: true});
+      root!.querySelector('.planner-mobile-nav')!.scrollIntoView({block: 'start', behavior: 'instant'});
+    }
+  }
+  panelButtons.forEach(button => button.addEventListener('click', () => showPanel(button.dataset.planPanel as 'options' | 'preview')));
+  root.querySelector('[data-plan-show="preview"]')!.addEventListener('click', () => showPanel('preview'));
 
   function syncShare() {
     const url = new URL(location.pathname, location.origin);
@@ -37,11 +52,17 @@ if (root) {
   }
   function render() {
     const c = state.config;
-    area.min = String(minimumArea(c.bedrooms, c.bathrooms));
+    area.min = String(minimumArea(c.bedrooms, c.bathrooms, c));
     area.value = String(c.area);
     area.setAttribute('aria-valuetext', `${c.area} metros cuadrados`);
     bedrooms.value = String(c.bedrooms);
     bathrooms.value = String(c.bathrooms);
+    bathroomMode.value = c.bathroomMode;
+    bathroomSize.value = c.bathroomSize;
+    bedroomPriority.value = c.bedroomPriority;
+    get<HTMLElement>('plan-bathroom-mode-field').hidden = c.bathrooms < 2;
+    get<HTMLElement>('plan-bedroom-priority-field').hidden = c.bedrooms < 2;
+    get<HTMLElement>('plan-bathroom-access-help').textContent = c.bathroomMode === 'suite' ? 'Un baño se abre desde el dormitorio principal; el otro, desde el pasillo.' : 'Los baños se abren hacia la circulación de la casa.';
     kitchen.value = c.kitchen;
     terrace.checked = c.terrace;
     mirror.setAttribute('aria-pressed', String(c.mirrored));
@@ -54,17 +75,24 @@ if (root) {
     const selected = createPlanGeometry(c).rooms.find(room => room.id === selectedRoom);
     get<HTMLElement>('plan-room-detail').querySelector('strong')!.textContent = selected?.label || 'Explora tu distribución';
     get<HTMLElement>('plan-room-detail').querySelector('span')!.textContent = selected ? `${selected.w.toFixed(2).replace('.', ',')} × ${selected.h.toFixed(2).replace('.', ',')} m · ${selected.area.toFixed(1).replace('.', ',')} m² aprox.` : 'Selecciona un ambiente del plano para ver sus dimensiones.';
+    get<HTMLButtonElement>('plan-edit-room').hidden = !selected;
+    get<HTMLButtonElement>('plan-edit-room').textContent = selected?.kind === 'bathroom' ? 'Personalizar baños' : selected?.kind === 'bedroom' ? 'Personalizar dormitorios' : 'Personalizar casa';
+    get<HTMLElement>('plan-bath-detail').hidden = selected?.kind !== 'bathroom';
+    if (selected?.kind === 'bathroom') {
+      get<SVGSVGElement>('plan-bath-detail-svg').innerHTML = bathroomDetailMarkup(selected, c.mirrored);
+      get<HTMLElement>('plan-bath-detail-caption').textContent = `${selected.label}: ducha, inodoro y lavamanos. ${selected.access === 'suite' ? 'Uso privado desde el dormitorio principal.' : 'Acceso independiente desde el pasillo.'} Distribución orientativa.`;
+    }
     get<SVGDescElement>('plan-svg-description').textContent = `${planSummary(c)}. ${createRooms(c).map(r => `${r.label}: ${r.area.toFixed(1)} m²`).join('. ')}.`;
     strokeGroup.innerHTML = strokeMarkup(state.strokes);
     syncShare();
   }
   function updateOptions() {
     const requestedArea = Number(area.value);
-    state.config = normalizeConfig({area: requestedArea, bedrooms: Number(bedrooms.value), bathrooms: Number(bathrooms.value), kitchen: kitchen.value === 'cerrada' ? 'cerrada' : 'abierta', terrace: terrace.checked, mirrored: state.config.mirrored, layout: layouts.find(input => input.checked)?.value === 'longitudinal' ? 'longitudinal' : 'compacta'});
+    state.config = normalizeConfig({area: requestedArea, bedrooms: Number(bedrooms.value), bathrooms: Number(bathrooms.value), kitchen: kitchen.value === 'cerrada' ? 'cerrada' : 'abierta', terrace: terrace.checked, mirrored: state.config.mirrored, layout: layouts.find(input => input.checked)?.value === 'longitudinal' ? 'longitudinal' : 'compacta', bathroomMode: bathroomMode.value === 'suite' ? 'suite' : 'compartidos', bathroomSize: bathroomSize.value === 'amplio' ? 'amplio' : 'estandar', bedroomPriority: bedroomPriority.value === 'principal' ? 'principal' : 'equilibrada'});
     status.textContent = state.config.area > requestedArea ? `Ajustamos la superficie a ${state.config.area} m² para distribuir los ambientes que elegiste.` : '';
     render();
   }
-  for (const input of [area, bedrooms, bathrooms, kitchen, terrace, ...layouts]) input.addEventListener('input', updateOptions);
+  for (const input of [area, bedrooms, bathrooms, bathroomMode, bathroomSize, bedroomPriority, kitchen, terrace, ...layouts]) input.addEventListener('input', updateOptions);
   for (const input of [view, dimensions]) input.addEventListener('change', render);
   function selectRoom(event: MouseEvent | KeyboardEvent) {
     if (drawing || !(event.target instanceof Element)) return;
@@ -74,9 +102,17 @@ if (root) {
     selectedRoom = target.dataset.room;
     render();
     if (event instanceof KeyboardEvent) get<SVGGElement>('plan-geometry').querySelector<SVGGElement>(`[data-room="${selectedRoom}"]`)?.focus({preventScroll: true});
+    else if (matchMedia('(max-width: 700px)').matches) get<HTMLElement>('plan-room-detail').scrollIntoView({block: 'nearest', behavior: 'instant'});
   }
   board.addEventListener('click', selectRoom);
   board.addEventListener('keydown', selectRoom);
+  get<HTMLButtonElement>('plan-edit-room').addEventListener('click', () => {
+    showPanel('options', false);
+    const room = createPlanGeometry(state.config).rooms.find(r => r.id === selectedRoom);
+    const target = room?.kind === 'bathroom' ? state.config.bathrooms === 2 ? bathroomMode : bathroomSize : room?.kind === 'bedroom' && state.config.bedrooms > 1 ? bedroomPriority : area;
+    target.focus();
+    target.scrollIntoView({block: 'center', behavior: 'instant'});
+  });
   mirror.addEventListener('click', () => {state.config.mirrored = !state.config.mirrored; render();});
   pen.addEventListener('click', () => {
     drawing = !drawing;
@@ -172,10 +208,12 @@ if (root) {
     state = shared;
     selectedRoom = undefined;
     render();
-    status.textContent = 'Diseño compartido cargado. Puedes revisarlo o seguir ajustándolo.';
+    showPanel('preview', false);
+    status.textContent = shared.adjustedFrom ? `Cargamos tu idea de ${shared.adjustedFrom} m² y ajustamos la superficie a ${state.config.area} m² para la nueva distribución. Puedes seguir personalizándola.` : 'Diseño compartido cargado. Puedes revisarlo o seguir ajustándolo.';
     requestAnimationFrame(() => root!.closest('section')?.scrollIntoView({behavior: 'instant'}));
   }
   render();
+  showPanel('preview', false);
   loadSharedDesign();
   window.addEventListener('hashchange', loadSharedDesign);
 }

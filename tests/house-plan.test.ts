@@ -23,8 +23,21 @@ test('Every offered layout fills the interior without overlapping rooms or escap
 });
 
 test('Shared links retain settings, flipped distribution and every drawing point', () => {
-  const state = {config: {...defaultConfig, layout: 'longitudinal' as const, kitchen: 'cerrada' as const, terrace: false, mirrored: true}, strokes: [[0, 255, 25, 50, 125, 150], [220, 30, 240, 40]]};
+  const state = {config: normalizeConfig({...defaultConfig, area: 120, layout: 'longitudinal', bathroomMode: 'suite', bathroomSize: 'amplio', bedroomPriority: 'principal', kitchen: 'cerrada', terrace: false, mirrored: true}), strokes: [[0, 255, 25, 50, 125, 150], [220, 30, 240, 40]]};
   assert.deepEqual(decodePlan(encodePlan(state)), state);
+});
+
+test('Older small designs migrate explicitly to a usable area; the only bathroom stays shared', () => {
+  const legacy = btoa(String.fromCharCode(2, 48, 2, 1, 1, 0));
+  const migrated = decodePlan(legacy);
+  assert.equal(migrated?.adjustedFrom, 48);
+  assert.equal(migrated?.config.area, 60);
+  assert.equal(migrated?.config.bathrooms, 1);
+  assert.equal(normalizeConfig({...defaultConfig, bathrooms: 1, bathroomMode: 'suite'}).bathroomMode, 'compartidos');
+  assert.equal(decodePlan(btoa(String.fromCharCode(3, 96, 2, 1, 16, 0))), null);
+  const singleBedroom = normalizeConfig({...defaultConfig, area: 48, bedrooms: 1, bathrooms: 1, bedroomPriority: 'principal'});
+  assert.equal(singleBedroom.bedroomPriority, 'equilibrada');
+  assert.equal(singleBedroom.area, 48);
 });
 
 test('Previously shared version 1 links still open as compact layouts', () => {
