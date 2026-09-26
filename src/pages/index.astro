@@ -244,6 +244,8 @@ const modelos = [
     const worksCurrent = document.querySelector<HTMLElement>('#works-current');
     if (works && worksViewport && worksTrack) {
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const mobileWorks = window.matchMedia('(max-width: 760px), (hover: none) and (pointer: coarse)');
+      const scrollCue = works.querySelector<HTMLElement>('.works-scroll-cue');
       let travel = 0;
       let frame = 0;
 
@@ -267,13 +269,16 @@ const modelos = [
       };
 
       const measure = () => {
-        if (reducedMotion.matches) {
+        if (reducedMotion.matches || mobileWorks.matches) {
           works.classList.remove('is-scroll-driven');
           works.style.removeProperty('--scroll-distance');
           worksTrack.style.removeProperty('transform');
+          if (scrollCue) scrollCue.textContent = 'Desliza las obras hacia un lado';
           setProgress(worksViewport.scrollLeft / Math.max(1, worksTrack.scrollWidth - worksViewport.clientWidth));
           return;
         }
+        worksViewport.scrollLeft = 0;
+        if (scrollCue) scrollCue.textContent = 'Desplázate para explorar';
         works.classList.add('is-scroll-driven');
         travel = Math.max(0, worksTrack.scrollWidth - worksViewport.clientWidth);
         works.style.setProperty('--scroll-distance', `${Math.max(travel * 2.4, window.innerHeight * (worksTrack.children.length - 1))}px`);
@@ -282,7 +287,7 @@ const modelos = [
 
       window.addEventListener('scroll', requestUpdate, { passive: true });
       worksViewport.addEventListener('scroll', () => {
-        if (reducedMotion.matches) setProgress(worksViewport.scrollLeft / Math.max(1, worksTrack.scrollWidth - worksViewport.clientWidth));
+        if (!works.classList.contains('is-scroll-driven')) setProgress(worksViewport.scrollLeft / Math.max(1, worksTrack.scrollWidth - worksViewport.clientWidth));
       }, { passive: true });
       window.addEventListener('resize', measure, { passive: true });
       reducedMotion.addEventListener('change', measure);
@@ -367,6 +372,7 @@ const modelos = [
   .works-progress-line::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--yellow); transform: scaleX(var(--works-progress, 0)); transform-origin: left center; }
   .works-scroll-cue { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; color: var(--paper); font-size: 11px; }
   .works-viewport { min-width: 0; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .works:not(.is-scroll-driven) .works-stage { min-height: 0; }
   .works-viewport::-webkit-scrollbar { display: none; }
   .works.is-scroll-driven .works-viewport { overflow: hidden; scroll-snap-type: none; }
   .works-track { display: flex; align-items: stretch; width: max-content; padding: 21px 24px 34px 0; }
@@ -471,7 +477,7 @@ const modelos = [
     .works-progress { margin-top: 0; }
     .works-scroll-cue { margin-top: 8px; }
     .work-card { width: min(78vw, 320px); padding: 7px; border-radius: 16px; }
-    .work-card + .work-card { margin-left: -27px; }
+    .work-card + .work-card { margin-left: 12px; }
     .work-card img { aspect-ratio: 1.25; border-radius: 12px; }
     .work-card-caption { min-height: 83px; padding: 11px 10px; gap: 9px; }
     .work-card h3 { font-size: 17px; }
