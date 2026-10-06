@@ -6,11 +6,12 @@ const whatsapp = 'https://wa.me/56935172731';
   <div class="budget-inner">
     <div class="budget-intro">
       <h2 id="budget-title">Conversemos sobre <strong>tu proyecto.</strong></h2>
-      <p>Solicita un presupuesto para construir o remodelar tu casa, un quincho o un radier. Cuéntanos qué necesitas y dónde quieres hacerlo.</p>
+      <p>Solicita un presupuesto para construir o remodelar tu casa, un quincho o un radier en cualquier región de Chile. Cuéntanos qué necesitas y dónde quieres hacerlo.</p>
       <dl class="contact-details">
         <div><dt>Teléfono y WhatsApp</dt><dd><a href={whatsapp} target="_blank" rel="noopener noreferrer">+56 9 3517 2731</a></dd></div>
         <div><dt>Correo</dt><dd><a href="mailto:mauricioeazocar@gmail.com">mauricioeazocar@gmail.com</a></dd></div>
-        <div><dt>Dirección</dt><dd>Cerro Negro #1388, Angol<br />La Araucanía, Chile</dd></div>
+        <div><dt>Cobertura</dt><dd>Todo Chile. Nos trasladamos a tu comuna.</dd></div>
+        <div><dt>Dirección en Angol</dt><dd>Cerro Negro #1388, Angol<br />La Araucanía, Chile</dd></div>
         <div><dt>Horario de contacto</dt><dd>24/7</dd></div>
       </dl>
       <a class="contact-map" href="https://www.google.com/maps/search/?api=1&query=Cerro+Negro+1388+Angol+Chile" target="_blank" rel="noopener noreferrer">Ver ubicación</a>
@@ -23,7 +24,7 @@ const whatsapp = 'https://wa.me/56935172731';
         <div><label for="budget-phone">Teléfono *</label><input id="budget-phone" name="phone" type="tel" autocomplete="tel" placeholder="+56 9…" minlength="8" maxlength="24" required /></div>
         <div class="full"><label for="budget-email">Correo electrónico <span>(opcional)</span></label><input id="budget-email" name="email" type="email" autocomplete="email" maxlength="120" placeholder="tu@correo.cl" /></div>
         <div><label for="budget-service">Tipo de proyecto *</label><select id="budget-service" name="service" required><option value="" disabled selected>Seleccionar</option><option>Casa llave en mano</option><option>Casa tradicional</option><option>Casa modular</option><option>Quincho</option><option>Radier</option><option>Remodelación o terminaciones</option><option>Electricidad o gasfitería</option><option>Otro proyecto</option></select></div>
-        <div><label for="budget-town">Comuna *</label><input id="budget-town" name="town" autocomplete="address-level2" placeholder="Ej. Angol" maxlength="80" required /></div>
+        <div><label for="budget-town">Comuna *</label><input id="budget-town" name="town" autocomplete="address-level2" placeholder="Tu comuna" maxlength="80" required /></div>
         <div class="full"><label for="budget-amount">Presupuesto disponible en CLP <span>(opcional)</span></label><input id="budget-amount" name="amount" type="number" inputmode="numeric" min="0" max="10000000000" step="1" placeholder="Monto aproximado en pesos" /></div>
         <div class="full"><label for="budget-description">Cuéntanos tu idea <span>(opcional)</span></label><textarea id="budget-description" name="description" rows="4" maxlength="1200" placeholder="Medidas, tipo de terreno, materiales o lo que imaginas para tu proyecto…"></textarea></div>
       </div>

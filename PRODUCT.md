@@ -18,6 +18,8 @@ El planificador también permite preparar una mejora o remodelación en tres pas
 
 ## Brand commitments
 
+Cobertura confirmada por el usuario: todo Chile. La empresa se traslada al lugar del proyecto. Angol, La Araucanía, es su base y dirección de contacto; no limita el área de servicio. Mantener esta distinción en textos visibles, metadatos y datos estructurados.
+
 Negro, amarillo y blanco. Una sola familia tipográfica, REM, y el logo existente. Mantener las imágenes y el diseño del hero. Evitar flechas decorativas en cada botón. Teléfono y escritorio tienen igual importancia.
 
 ## Evidence

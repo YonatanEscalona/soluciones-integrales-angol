@@ -18,7 +18,7 @@ const imageCaption = service.slug === 'remodelaciones-angol' ? 'Fotografía del 
   <a class="skip-link" href="#contenido">Ir al contenido</a>
   <header class="service-header">
     <div class="header-inner">
-      <a class="brand" href={home} aria-label="Soluciones Integrales, inicio"><img src={`${base}/images/logo-soluciones-integrales.png`} alt="" width="640" height="514" /><span><strong>Soluciones Integrales</strong><small>Construcción de casas · Angol</small></span></a>
+      <a class="brand" href={home} aria-label="Soluciones Integrales, inicio"><img src={`${base}/images/logo-soluciones-integrales.png`} alt="" width="640" height="514" /><span><strong>Soluciones Integrales</strong><small>Construcción en todo Chile</small></span></a>
       <nav aria-label="Navegación principal"><a href={`${home}#servicios`}>Servicios</a><a href={`${home}#contacto`}>Contacto</a></nav>
       <a class="header-quote" href={quote} target="_blank" rel="noopener noreferrer" aria-label="Cotizar por WhatsApp"><span class="quote-full">Cotizar por WhatsApp</span><span class="quote-short" aria-hidden="true">WhatsApp</span></a>
     </div>
@@ -41,7 +41,7 @@ const imageCaption = service.slug === 'remodelaciones-angol' ? 'Fotografía del 
     <section class="closing section-wrap" aria-labelledby="closing-title"><div><h2 id="closing-title">Demos el primer paso.</h2><p>Cuéntanos qué quieres hacer y dónde. Revisaremos los datos para definir el alcance de tu proyecto.</p></div><a class="button primary" href={quote} target="_blank" rel="noopener noreferrer">Solicitar mi presupuesto</a></section>
     <nav class="other-services section-wrap" aria-label="Otros servicios de construcción"><h2>También podemos ayudarte con</h2><ul>{services.filter(item => item.slug !== service.slug).map(item => <li><a href={`${base}/servicios/${item.slug}/`}>{item.name}</a></li>)}</ul></nav>
   </main>
-  <footer><div class="footer-inner"><div><strong>{business.name}</strong><p>Construcción de casas, quinchos, radieres y remodelaciones.</p><address>{business.streetAddress}, {business.city}<br />{business.region}, Chile</address></div><div class="footer-contact"><a href={business.whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp {business.phoneDisplay}</a><a href={`mailto:${business.email}`}>{business.email}</a><a href={business.originalWebsite} target="_blank" rel="noopener noreferrer">Otros servicios de Soluciones Integrales</a></div></div></footer>
+  <footer><div class="footer-inner"><div><strong>{business.name}</strong><p>Construcción de casas, quinchos, radieres y remodelaciones en todo Chile.</p><address>Base en {business.city}: {business.streetAddress}<br />{business.region}, Chile</address></div><div class="footer-contact"><a href={business.whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp {business.phoneDisplay}</a><a href={`mailto:${business.email}`}>{business.email}</a><a href={business.originalWebsite} target="_blank" rel="noopener noreferrer">Otros servicios de Soluciones Integrales</a></div></div></footer>
 </Layout>
 
 <style>

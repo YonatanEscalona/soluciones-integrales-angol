@@ -1,6 +1,6 @@
 # Soluciones Integrales Angol
 
-Sitio independiente enfocado en construcción de casas, quinchos, radieres y remodelaciones en Angol, desarrollado con Astro. El sitio general de la empresa sigue en solucionesintegralesangol.cl.
+Sitio independiente enfocado en construcción de casas, quinchos, radieres y remodelaciones en todo Chile, con base en Angol, desarrollado con Astro. El sitio general de la empresa sigue en solucionesintegralesangol.cl.
 
 ## Desarrollo local
 

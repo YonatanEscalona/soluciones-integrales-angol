@@ -10,8 +10,8 @@ interface Props {
 }
 
 const { 
-  title = "Soluciones Integrales | Construcción en Angol",
-  description = "Construcción de casas, quinchos y radieres en Angol y La Araucanía.",
+  title = "Soluciones Integrales | Construcción en todo Chile",
+  description = "Construcción de casas, quinchos y radieres en todo Chile. Nos trasladamos al lugar de tu proyecto.",
   service,
 } = Astro.props;
 
@@ -41,7 +41,7 @@ const structuredData = buildStructuredData({home, canonical, title, description,
     <meta property="og:image" content={socialImage} />
     <meta property="og:image:width" content="1672" />
     <meta property="og:image:height" content="940" />
-    <meta property="og:image:alt" content="Imagen ilustrativa de una casa contemporánea; Soluciones Integrales, construcción en Angol" />
+    <meta property="og:image:alt" content="Imagen ilustrativa de una casa contemporánea; Soluciones Integrales, construcción en todo Chile" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
     <script type="application/ld+json" set:html={serializeSchema(structuredData)} />

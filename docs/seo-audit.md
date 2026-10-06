@@ -6,7 +6,9 @@ Sitio revisado: https://yonatanescalona.github.io/soluciones-integrales-angol/
 
 ## Objetivo y alcance
 
-Captar solicitudes para construir casas y realizar trabajos residenciales relacionados en Angol y La Araucanía. La acción principal es cotizar por WhatsApp al +56 9 3517 2731.
+Captar solicitudes para construir casas y realizar trabajos residenciales relacionados en todo Chile. La acción principal es cotizar por WhatsApp al +56 9 3517 2731.
+
+Actualización de cobertura confirmada por el usuario el 6 de octubre de 2026: Soluciones Integrales trabaja en todo Chile y se traslada al lugar del proyecto. Angol es su base, no un límite de atención. Se ajustaron portada, servicios, preguntas frecuentes, contacto, metadatos y `areaServed` al país Chile. Las rutas ya publicadas que contienen `-angol` se conservan para mantener los enlaces y canonicals; su contenido comunica cobertura nacional.
 
 El usuario confirmó que esta web es independiente de solucionesintegralesangol.cl, que seguirá mostrando servicios generales. No es una migración: esta publicación conserva sus URLs y canonicals propios. Ambas representan la misma empresa; no se presenta una segunda empresa ficticia.
 
@@ -63,7 +65,7 @@ Contacto contrastado con la web original de la empresa:
 - Correo: mauricioeazocar@gmail.com.
 - Dirección: Cerro Negro #1388, Angol, La Araucanía, Chile.
 
-`src/data/business.ts` centraliza los datos usados por las nuevas páginas y el marcado. El `sameAs` enlaza con el sitio general para relacionar las dos publicaciones con la misma empresa. No se añadieron horarios ni valoraciones al JSON-LD.
+`src/data/business.ts` centraliza los datos usados por las nuevas páginas y el marcado. La dirección permanece en Angol y `areaServed` identifica el país Chile. El `sameAs` enlaza con el sitio general para relacionar las dos publicaciones con la misma empresa. No se añadieron horarios ni valoraciones al JSON-LD.
 
 ## SEO para buscadores con IA
 

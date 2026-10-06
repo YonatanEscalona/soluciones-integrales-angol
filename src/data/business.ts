@@ -12,6 +12,5 @@ export const business = {
 } as const;
 
 export const serviceAreas = [
-  {'@type': 'City', name: 'Angol'},
-  {'@type': 'AdministrativeArea', name: 'La Araucanía'},
+  {'@type': 'Country', name: 'Chile'},
 ];

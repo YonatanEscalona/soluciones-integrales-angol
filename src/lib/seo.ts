@@ -21,7 +21,7 @@ export function buildStructuredData(input: {home: string; canonical: string; tit
       telephone: business.telephone, email: business.email,
       logo: new URL('images/logo-soluciones-integrales.png', home).href,
       image: new URL('images/obra-casa-verde-hd.webp', home).href,
-      description: 'Construcción de casas, quinchos, radieres y remodelaciones en Angol y La Araucanía.',
+      description: 'Construcción de casas, quinchos, radieres y remodelaciones en todo Chile. Con base en Angol, nos trasladamos al lugar de tu proyecto.',
       address: {'@type': 'PostalAddress', streetAddress: business.streetAddress, addressLocality: business.city, addressRegion: business.region, addressCountry: business.country},
       areaServed: serviceAreas,
       ...(new URL(home).hostname !== new URL(business.originalWebsite).hostname ? {sameAs: [business.originalWebsite]} : {}),
