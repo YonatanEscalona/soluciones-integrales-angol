@@ -3,12 +3,7 @@ import { defaultConfig, minimumArea, planMarkup } from '../lib/house-plan';
 import { planViewBox } from '../lib/plan-artwork';
 ---
 
-<section class="planner-section" id="planifica" aria-labelledby="planner-title">
   <div class="planner-inner" data-house-planner>
-    <div class="planner-heading">
-      <h2 id="planner-title">Dale forma a <strong>tu casa.</strong></h2>
-      <p>Elige los ambientes, prueba una distribución y dibuja tus ideas. Después, conversemos sobre cómo llevarlas a tu terreno.</p>
-    </div>
     <div class="planner-mobile-nav" role="group" aria-label="Vista del planificador">
       <button type="button" data-plan-panel="options" aria-controls="plan-options" aria-pressed="false">Personalizar</button>
       <button type="button" data-plan-panel="preview" aria-controls="plan-preview" aria-pressed="true">Ver plano</button>
@@ -80,19 +75,13 @@ import { planViewBox } from '../lib/plan-artwork';
     <p class="planner-status" id="plan-status" role="status" aria-live="polite"></p>
     <noscript><p>Activa JavaScript para personalizar el plano. También puedes <a href="https://wa.me/56935172731">contarnos tu idea por WhatsApp</a>.</p></noscript>
   </div>
-</section>
 
 <script>
   import '../scripts/house-planner';
 </script>
 
 <style>
-  .planner-section { padding: 86px clamp(16px, 3.5vw, 56px); background: var(--paper); color: var(--ink); scroll-margin-top: 24px; }
   .planner-inner { max-width: 1424px; margin: 0 auto; }
-  .planner-heading { display: flex; align-items: end; justify-content: space-between; gap: 32px; margin-bottom: 36px; }
-  .planner-heading h2 { margin: 0; max-width: 12ch; font-size: clamp(38px, 4.2vw, 64px); line-height: 1.08; letter-spacing: -.04em; font-weight: 500; }
-  .planner-heading strong { display: block; font-weight: 700; }
-  .planner-heading p { max-width: 43ch; margin: 0 0 3px; color: var(--muted); font-size: 16px; line-height: 1.65; }
   .planner-workspace { display: grid; grid-template-columns: minmax(250px, .75fr) minmax(0, 1.7fr); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
   .planner-mobile-nav, .planner-options .mobile-show-plan { display: none; }
   [hidden] { display: none !important; }
@@ -173,10 +162,6 @@ import { planViewBox } from '../lib/plan-artwork';
   .planner-status { margin: 12px 0 0; min-height: 18px; color: var(--muted); font-size: 12px; }
   @media(max-width: 900px) { .planner-options { padding: 24px; } .planner-preview { padding: 24px 20px; } .planner-share { align-items: start; flex-direction: column; gap: 20px; } }
   @media(max-width: 700px) {
-    .planner-section { padding: 55px 16px 48px; }
-    .planner-heading { display: block; margin-bottom: 25px; }
-    .planner-heading h2 { font-size: 39px; }
-    .planner-heading p { margin-top: 16px; font-size: 14px; }
     .planner-workspace { grid-template-columns: 1fr; }
     .planner-inner[data-mobile-panel] .planner-mobile-nav { display: flex; gap: 6px; margin-bottom: 14px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
     .planner-mobile-nav button { flex: 1; border: 0; background: #fff; color: var(--ink); font-size: 14px; }

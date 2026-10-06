@@ -1,6 +1,6 @@
-# Planificador de casa y solicitud de presupuesto
+# Planificador de casa, remodelación y solicitud de presupuesto
 
-Extensión de la página existente, confirmada por el usuario como «plano 2D editable». El planificador aparece en `#planifica`; el formulario completo de presupuesto y contacto, en `#contacto`. La sección de servicios incorpora construcción llave en mano, cuyo alcance se acuerda para cada presupuesto.
+Extensión de la página existente, confirmada por el usuario como «plano 2D editable». El planificador aparece en `#planifica`, con los modos «Construir una casa» y «Mejorar o remodelar»; `#remodela` abre el segundo. El formulario completo de presupuesto y contacto aparece en `#contacto`. La sección de servicios incorpora construcción llave en mano, cuyo alcance se acuerda para cada presupuesto, y un acceso al planificador de remodelación.
 
 ## Continuidad visual
 
@@ -40,14 +40,28 @@ El formulario solicita nombre, teléfono, tipo de proyecto y comuna; correo, pre
 
 El sitio es estático: no hay backend de recepción ni envío automático de solicitudes. El dibujo es una idea de distribución con medidas aproximadas; no es un plano de arquitectura o construcción ni acredita viabilidad, permisos o cumplimiento normativo. Materiales, partidas y alcance de la construcción llave en mano se definen con el equipo; no se prometen precios ni plazos.
 
+## Mejora o remodelación
+
+`ProjectPlanner.astro` reúne el planificador de casa existente y `RenovationPlanner.astro`. El flujo de remodelación tiene tres pasos:
+
+1. **Espacios:** elegir cocina, baño, dormitorios, estar y comedor, fachada y techo, o terraza. El esquema de ejemplo y la lista de casillas nativas reflejan la misma selección; el esquema también admite Enter/Espacio.
+2. **Trabajos:** elegir al menos un trabajo específico o «Necesito orientación» por cada espacio, y un estilo. La orientación sustituye los trabajos marcados para ese espacio; elegir un trabajo retira la orientación.
+3. **Tu idea:** revisar espacios, trabajos y estilo; indicar comuna obligatoria y, opcionalmente, superficie a intervenir de 1–500 m², momento deseado y notas. «Cotizar remodelación» prepara el borrador para WhatsApp al +56 9 3517 2731 y ofrece un enlace alternativo. El visitante revisa y envía el mensaje.
+
+Las selecciones se conservan al volver a pasos anteriores y al alternar los dos modos dentro de la página actual. Desmarcar un espacio conserva sus casillas para una posible reselección, pero lo excluye del resumen y del mensaje. `src/lib/renovation.ts` filtra espacios y trabajos según el catálogo; `src/scripts/renovation-planner.ts` coordina pasos, validación, esquema y borrador. `#remodela` solo abre el modo: la remodelación no tiene guardado en servidor, almacenamiento local ni enlace que recupere la idea. El esquema no representa la distribución real de una vivienda ni produce planos de arquitectura, precios o plazos.
+
+La ampliación conserva negro, amarillo, blanco y REM: usa los tokens de la página, botones amarillos, campos con bordes discretos y controles que heredan la fuente. Mantiene la composición de dos columnas en escritorio; hasta 700 px sitúa el esquema antes de los espacios y lo oculta en los pasos de trabajos y revisión. El hero y la galería conservan su contenido y diseño. Esta extensión no define una identidad visual nueva.
+
+La revisión de esta ampliación pasó compilación, TypeScript estricto y las 18 pruebas de lógica del proyecto, incluidas las tres pruebas de remodelación sobre filtrado, requisitos por espacio y contenido del borrador. Se verificaron capturas, desplazamiento y ausencia de desbordamiento horizontal a 320 y 390 px. El recorrido táctil completo y la navegación de vuelta en teléfono quedaron sin verificar por un fallo de entrada del navegador tras abrir WhatsApp.
+
 ## Verificación
 
-Fuentes: `PRODUCT.md`, `src/pages/index.astro`, `src/layouts/Layout.astro`, `src/components/HousePlanner.astro`, `src/components/BudgetRequest.astro`, `src/lib/house-plan.ts`, `src/lib/plan-geometry.ts`, `src/lib/plan-artwork.ts`, `src/lib/bathroom-fixtures.ts` y `src/scripts/house-planner.ts`.
+Fuentes: `PRODUCT.md`, `src/pages/index.astro`, `src/layouts/Layout.astro`, `src/components/HousePlanner.astro`, `src/components/ProjectPlanner.astro`, `src/components/RenovationPlanner.astro`, `src/components/BudgetRequest.astro`, `src/lib/house-plan.ts`, `src/lib/plan-geometry.ts`, `src/lib/plan-artwork.ts`, `src/lib/bathroom-fixtures.ts`, `src/lib/renovation.ts`, `src/scripts/house-planner.ts` y `src/scripts/renovation-planner.ts`.
 
 Desde la raíz del proyecto:
 
 ```sh
-node --experimental-strip-types --test tests/house-plan.test.ts tests/plan-geometry.test.ts tests/bathroom-fixtures.test.ts
+node --experimental-strip-types --test tests/house-plan.test.ts tests/plan-geometry.test.ts tests/bathroom-fixtures.test.ts tests/renovation.test.ts
 pnpm build
 ```
 

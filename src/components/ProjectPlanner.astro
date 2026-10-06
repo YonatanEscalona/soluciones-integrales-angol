@@ -1,0 +1,87 @@
+---
+import HousePlanner from './HousePlanner.astro';
+import RenovationPlanner from './RenovationPlanner.astro';
+---
+
+<section class="project-planner" id="planifica" aria-labelledby="planner-title" data-project-planner>
+  <div class="project-planner-inner">
+    <div class="planner-heading">
+      <h2 id="planner-title">Dale forma a <strong>tu casa.</strong></h2>
+      <p>Desde una casa nueva hasta ese espacio que quieres renovar. Explora las opciones y cuéntanos lo que tienes en mente.</p>
+    </div>
+    <div class="project-modes" role="tablist" aria-label="¿Qué quieres hacer con tu casa?">
+      <button type="button" role="tab" id="project-new" aria-controls="project-new-panel" aria-selected="true" data-project-mode="new" disabled>
+        <strong>Construir una casa</strong><span>Prueba un plano y su distribución</span>
+      </button>
+      <button type="button" role="tab" id="remodela" aria-controls="project-renovate-panel" aria-selected="false" tabindex="-1" data-project-mode="renovate" disabled>
+        <strong>Mejorar o remodelar</strong><span>Renueva los espacios que ya tienes</span>
+      </button>
+    </div>
+    <div id="project-new-panel" role="tabpanel" aria-labelledby="project-new" tabindex="0"><HousePlanner /></div>
+    <div id="project-renovate-panel" role="tabpanel" aria-labelledby="remodela" tabindex="0" hidden><RenovationPlanner /></div>
+    <noscript><p>También podemos ayudarte con una <a href="https://wa.me/56935172731?text=Hola%2C%20quiero%20cotizar%20una%20remodelaci%C3%B3n.">mejora o remodelación por WhatsApp</a>.</p></noscript>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-project-planner]');
+  if (root) {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-project-mode]')];
+    const setMode = (mode: string, focus = false, updateHash = false) => {
+      tabs.forEach(tab => {
+        const active = tab.dataset.projectMode === mode;
+        tab.disabled = false;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+        root.querySelector<HTMLElement>(`#${tab.getAttribute('aria-controls')}`)!.hidden = !active;
+        if (active && focus) tab.focus({preventScroll: true});
+      });
+      if (updateHash && !(mode === 'new' && location.hash.startsWith('#planifica='))) history.replaceState(null, '', mode === 'renovate' ? '#remodela' : '#planifica');
+    };
+    tabs.forEach((tab, index) => {
+      tab.disabled = false;
+      tab.addEventListener('click', () => setMode(tab.dataset.projectMode!, false, true));
+      tab.addEventListener('keydown', event => {
+        const direction = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+        if (!direction && event.key !== 'Home' && event.key !== 'End') return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs.at(-1)! : tabs[(index + direction + tabs.length) % tabs.length];
+        setMode(next.dataset.projectMode!, true, true);
+      });
+    });
+    const syncHash = () => {
+      if (location.hash === '#remodela') setMode('renovate');
+      else if (location.hash.startsWith('#planifica')) setMode('new');
+    };
+    document.querySelectorAll<HTMLAnchorElement>('a[href="#remodela"], a[href="#planifica"]').forEach(link => link.addEventListener('click', () => setMode(link.hash === '#remodela' ? 'renovate' : 'new')));
+    window.addEventListener('hashchange', syncHash);
+    syncHash();
+  }
+</script>
+
+<style>
+  .project-planner { padding: 86px clamp(16px, 3.5vw, 56px); background: var(--paper); color: var(--ink); scroll-margin-top: 24px; }
+  .project-planner-inner { max-width: 1424px; margin: 0 auto; }
+  .planner-heading { display: flex; align-items: end; justify-content: space-between; gap: 32px; margin-bottom: 30px; }
+  .planner-heading h2 { margin: 0; max-width: 12ch; font-size: clamp(38px, 4.2vw, 64px); line-height: 1.08; letter-spacing: -.04em; font-weight: 500; }
+  .planner-heading strong { display: block; font-weight: 700; }
+  .planner-heading p { max-width: 43ch; margin: 0 0 3px; color: var(--muted); font-size: 16px; line-height: 1.65; }
+  .project-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .project-modes button { min-width: 0; min-height: 78px; padding: 16px 20px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: background-color 180ms ease-out; scroll-margin-top: 24px; }
+  .project-modes strong { display: block; font-size: 16px; font-weight: 700; }
+  .project-modes span { display: block; margin-top: 5px; font-size: 12px; line-height: 1.4; }
+  .project-modes button[aria-selected='true'] { background: var(--yellow); border-color: var(--yellow); }
+  .project-modes button:hover:enabled { border-color: var(--ink); }
+  [hidden] { display: none !important; }
+  @media(max-width: 700px) {
+    .project-planner { padding: 55px 16px 48px; }
+    .planner-heading { display: block; margin-bottom: 24px; }
+    .planner-heading h2 { font-size: 39px; }
+    .planner-heading p { margin-top: 16px; font-size: 14px; }
+    .project-modes { gap: 8px; margin-bottom: 20px; }
+    .project-modes button { min-height: 80px; padding: 12px; }
+    .project-modes strong { font-size: 14px; line-height: 1.4; }
+    .project-modes span { display: none; }
+  }
+  @media(prefers-reduced-motion: reduce) { .project-modes button { transition: none; } }
+</style>

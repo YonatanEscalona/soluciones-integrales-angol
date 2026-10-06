@@ -1,0 +1,181 @@
+---
+import { renovationSpaces, renovationTasks, renovationFinishes, renovationTimings } from '../lib/renovation';
+const zones = [
+  {id: 'exterior', label: 'Fachada y techo', x: 24, y: 18, w: 452, h: 50},
+  {id: 'estar', label: 'Estar y comedor', x: 24, y: 80, w: 260, h: 116},
+  {id: 'cocina', label: 'Cocina', x: 294, y: 80, w: 182, h: 116},
+  {id: 'dormitorios', label: 'Dormitorios', x: 24, y: 208, w: 260, h: 80},
+  {id: 'bano', label: 'Baño', x: 294, y: 208, w: 182, h: 80},
+  {id: 'terraza', label: 'Terraza', x: 24, y: 300, w: 452, h: 50},
+];
+---
+
+<div class="renovation" data-renovation data-step="1">
+  <nav class="renovation-steps" aria-label="Pasos de tu remodelación">
+    <button type="button" data-renovation-go="1" aria-current="step" disabled><span>1</span>Espacios</button>
+    <button type="button" data-renovation-go="2" disabled><span>2</span>Trabajos</button>
+    <button type="button" data-renovation-go="3" disabled><span>3</span>Tu idea</button>
+  </nav>
+  <form id="renovation-form" aria-label="Planifica una mejora o remodelación" novalidate>
+    <div class="renovation-workspace">
+      <div class="renovation-editor">
+        <div data-renovation-step="1">
+          <h3 id="renovation-step-1" tabindex="-1">¿Qué espacios quieres mejorar?</h3>
+          <p class="step-intro">Elige uno o varios. Puedes marcarlos en el esquema o en esta lista.</p>
+          <fieldset class="space-choices"><legend class="sr-only">Espacios a remodelar</legend>
+            {renovationSpaces.map(space => <label><input type="checkbox" name="renovation-space" value={space.id} /><span>{space.label}</span></label>)}
+          </fieldset>
+          <p class="step-help">Una reparación puntual o varios ambientes: partimos de lo que necesitas.</p>
+        </div>
+        <div data-renovation-step="2" hidden>
+          <h3 id="renovation-step-2" tabindex="-1">Elige los cambios para cada espacio.</h3>
+          <p class="step-intro">Marca lo que tienes en mente. Si aún no lo sabes, podemos orientarte.</p>
+          <div class="renovation-task-groups">
+            {renovationSpaces.map(space => <fieldset data-renovation-jobs={space.id} hidden>
+              <legend>{space.label}</legend>
+              <div>{renovationTasks(space.id).map(job => <label><input type="checkbox" data-job-space={space.id} value={job.id} /><span>{job.label}</span></label>)}</div>
+            </fieldset>)}
+          </div>
+          <label class="field-label" for="renovation-finish">¿Qué estilo te gustaría?</label>
+          <select id="renovation-finish">{renovationFinishes.map(finish => <option value={finish.id} selected={finish.id === 'definir'}>{finish.label}</option>)}</select>
+        </div>
+        <div data-renovation-step="3" hidden>
+          <h3 id="renovation-step-3" tabindex="-1">Así empieza tu remodelación.</h3>
+          <p class="step-intro">Revisa tu selección y agrega los detalles que nos ayudarán a conversar sobre el proyecto.</p>
+          <div class="renovation-review" id="renovation-review"></div>
+          <div class="renovation-fields">
+            <div><label class="field-label" for="renovation-town">Comuna del proyecto *</label><input id="renovation-town" autocomplete="address-level2" maxlength="80" placeholder="Ej. Angol" required /></div>
+            <div><label class="field-label" for="renovation-area">Superficie a intervenir <span>(opcional)</span></label><div class="area-input"><input id="renovation-area" type="number" inputmode="decimal" min="1" max="500" step="any" placeholder="Ej. 20" aria-describedby="renovation-area-help" /><span>m²</span></div></div>
+          </div>
+          <p class="field-help" id="renovation-area-help">Solo los espacios a mejorar. Si no conoces las medidas, puedes dejarlo vacío.</p>
+          <label class="field-label" for="renovation-timing">¿Cuándo te gustaría hacerlo?</label>
+          <select id="renovation-timing">{renovationTimings.map(timing => <option value={timing.id}>{timing.label}</option>)}</select>
+          <label class="field-label" for="renovation-notes">Cuéntanos tu idea <span>(opcional)</span></label>
+          <textarea id="renovation-notes" rows="3" maxlength="600" placeholder="Qué quieres conservar, qué te incomoda hoy o qué resultado imaginas…"></textarea>
+          <p class="step-help">El equipo revisará las medidas y la factibilidad para preparar tu presupuesto. Puedes adjuntar fotos de tu casa al conversar por WhatsApp.</p>
+        </div>
+        <p class="renovation-error" id="renovation-error" role="alert" hidden></p>
+        <div class="renovation-actions">
+          <button type="button" class="secondary" id="renovation-back" hidden>Volver</button>
+          <button type="button" class="primary" id="renovation-next" disabled>Elegir trabajos</button>
+          <button type="submit" class="primary" id="renovation-submit" hidden disabled>Cotizar remodelación</button>
+        </div>
+        <p class="send-note" id="renovation-send-note" hidden>Se abrirá WhatsApp con tu idea para que la revises y la envíes.</p>
+        <p class="renovation-status" id="renovation-status" role="status"></p>
+        <a id="renovation-fallback" href="https://wa.me/56935172731" target="_blank" rel="noopener noreferrer" hidden>Abrir mi idea en WhatsApp</a>
+      </div>
+      <aside class="renovation-preview" aria-labelledby="renovation-preview-title">
+        <div class="preview-heading"><h3 id="renovation-preview-title">Tu casa, tus cambios.</h3><span id="renovation-count" role="status">Elige tus espacios</span></div>
+        <svg class="renovation-map" viewBox="0 0 500 368" role="group" aria-labelledby="renovation-map-title renovation-map-desc">
+          <title id="renovation-map-title">Selecciona los espacios que quieres remodelar</title>
+          <desc id="renovation-map-desc">Esquema de ejemplo de una casa. Sus espacios se pueden marcar para planificar trabajos.</desc>
+          {zones.map(zone => <g data-renovation-zone={zone.id} role="checkbox" aria-label={zone.label} aria-checked="false" tabindex="0">
+            <rect x={zone.x} y={zone.y} width={zone.w} height={zone.h} rx="3" />
+            <text x={zone.x + zone.w / 2} y={zone.y + zone.h / 2 + 5} text-anchor="middle">{zone.label}</text>
+            <path class="zone-check" d={`M${zone.x + zone.w - 28} ${zone.y + 14}l5 5 9-10`} fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+          </g>)}
+        </svg>
+        <p class="map-note">Esquema de ejemplo para elegir espacios. La distribución real de tu casa se revisa contigo.</p>
+        <div class="selection-summary"><h4>Lo que quieres renovar</h4><ul id="renovation-live-summary"><li class="empty-selection">Los espacios que selecciones aparecerán aquí.</li></ul></div>
+      </aside>
+    </div>
+  </form>
+</div>
+
+<script>import '../scripts/renovation-planner';</script>
+
+<style>
+  .renovation { color: var(--ink); }
+  [hidden] { display: none !important; }
+  h3, h4, p { margin: 0; }
+  h3 { font-size: 21px; line-height: 1.35; font-weight: 700; letter-spacing: -.025em; }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: default; }
+  .renovation-steps { display: flex; gap: 24px; margin-bottom: 20px; }
+  .renovation-steps button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .renovation-steps span { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6px; font-variant-numeric: tabular-nums; }
+  .renovation-steps [aria-current='step'] { color: var(--ink); }
+  .renovation-steps [aria-current='step'] span { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .renovation-workspace { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: stretch; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .renovation-editor { min-width: 0; padding: 32px; }
+  .step-intro { margin-top: 12px; max-width: 53ch; font-size: 14px; color: var(--muted); line-height: 1.65; }
+  fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
+  .space-choices { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; margin-top: 24px; }
+  .space-choices label, .renovation-task-groups label { display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 10px 0; border-bottom: 1px solid var(--line); cursor: pointer; font-size: 14px; line-height: 1.45; }
+  input[type='checkbox'] { width: 20px; height: 20px; flex: none; accent-color: var(--yellow); }
+  .space-choices label:has(:checked) { font-weight: 600; }
+  .step-help { margin-top: 24px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .renovation-task-groups { margin-top: 24px; }
+  .renovation-task-groups fieldset { margin-bottom: 26px; scroll-margin-top: 24px; }
+  .renovation-task-groups legend { font-size: 15px; font-weight: 700; }
+  .renovation-task-groups fieldset > div { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; margin-top: 8px; }
+  .renovation-task-groups label { font-size: 12px; }
+  .field-label { display: block; margin: 22px 0 8px; font-size: 13px; font-weight: 600; line-height: 1.5; }
+  .field-label span { font-weight: 400; color: var(--muted); }
+  input:not([type='checkbox']), select, textarea { display: block; width: 100%; min-width: 0; min-height: 46px; border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; background: #fff; color: var(--ink); font-size: 14px; }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
+  textarea { resize: vertical; line-height: 1.5; }
+  .renovation-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .area-input { display: flex; align-items: center; gap: 8px; }
+  .area-input span { font-size: 13px; }
+  .field-help { margin-top: 10px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+  .renovation-review { margin-top: 22px; border-block: 1px solid var(--line); padding: 4px 0 16px; }
+  .renovation-review :global(dl) { margin: 0; }
+  .renovation-review :global(dt) { margin-top: 14px; font-size: 13px; font-weight: 700; }
+  .renovation-review :global(dd) { margin: 5px 0 0; font-size: 12px; line-height: 1.6; color: var(--muted); overflow-wrap: anywhere; }
+  .renovation-actions { display: flex; justify-content: end; gap: 10px; margin-top: 28px; }
+  .renovation-actions button { min-height: 46px; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; line-height: 1.4; transition: background-color 180ms ease-out; }
+  .primary { background: var(--yellow); color: var(--ink); border: 1px solid var(--yellow); }
+  .primary:hover:enabled { background: var(--yellow-bright); }
+  .secondary { background: #fff; color: var(--ink); border: 1px solid var(--ink); }
+  .secondary:hover:enabled { background: #f0f1ef; }
+  .renovation-error { margin-top: 24px; padding: 12px; border: 1px solid var(--ink); border-radius: 7px; color: var(--ink); font-size: 13px; line-height: 1.5; }
+  .send-note, .renovation-status { margin-top: 12px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+  .renovation-status:empty { display: none; }
+  #renovation-fallback { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; color: var(--ink); font-size: 13px; text-underline-offset: 4px; }
+  .renovation-preview { min-width: 0; padding: 30px 24px; background: var(--ink); color: #fff; }
+  .preview-heading span { display: block; margin-top: 8px; color: var(--yellow); font-size: 12px; }
+  .renovation-map { display: block; width: 100%; max-width: 500px; margin: 20px auto 0; }
+  .renovation-map g { cursor: pointer; outline: none; }
+  .renovation-map rect { fill: #fff; stroke: #fff; stroke-width: 2px; transition: fill 180ms ease-out; }
+  .renovation-map text { fill: var(--ink); font-family: inherit; font-size: 17px; font-weight: 500; pointer-events: none; }
+  .renovation-map .zone-check { opacity: 0; stroke: var(--ink); pointer-events: none; }
+  .renovation-map [aria-checked='true'] rect { fill: var(--yellow); stroke: var(--yellow); }
+  .renovation-map [aria-checked='true'] .zone-check { opacity: 1; }
+  .renovation-map g:hover rect, .renovation-map g:focus-visible rect { stroke: var(--yellow); stroke-width: 4px; }
+  .map-note { max-width: 50ch; margin: 12px 0 0; color: #d5d8d2; font-size: 11px; line-height: 1.6; }
+  .selection-summary { margin-top: 24px; padding-top: 20px; border-top: 1px solid #484d43; }
+  .selection-summary h4 { font-size: 13px; font-weight: 600; }
+  .selection-summary ul { margin: 12px 0 0; padding: 0; list-style: none; }
+  .selection-summary :global(li) { margin-top: 10px; color: #d5d8d2; font-size: 12px; line-height: 1.6; }
+  .selection-summary :global(strong) { display: block; color: #fff; font-weight: 600; }
+  .selection-summary :global(span) { display: block; margin-top: 2px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  @media(max-width: 900px) { .renovation-editor { padding: 24px; } .renovation-preview { padding: 24px 18px; } .renovation-task-groups fieldset > div { grid-template-columns: 1fr; } }
+  @media(max-width: 700px) {
+    h3 { font-size: 19px; }
+    .renovation-steps { justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+    .renovation-steps button { gap: 6px; font-size: 11px; }
+    .renovation-steps span { width: 24px; height: 24px; }
+    .renovation-workspace { display: flex; flex-direction: column; }
+    .renovation-editor { padding: 22px 18px; }
+    .renovation-preview { order: -1; padding: 20px 16px 16px; }
+    .preview-heading h3 { font-size: 17px; }
+    .preview-heading span { margin-top: 5px; font-size: 11px; }
+    .renovation-map { margin-top: 8px; max-width: 360px; }
+    .map-note { font-size: 10px; margin-top: 4px; }
+    .selection-summary { display: none; }
+    .renovation[data-step='2'] .renovation-preview, .renovation[data-step='3'] .renovation-preview { display: none; }
+    .step-intro { font-size: 13px; }
+    .space-choices { column-gap: 14px; margin-top: 16px; }
+    .space-choices label { font-size: 12px; }
+    .step-help { margin-top: 18px; font-size: 11px; }
+    .renovation-fields { grid-template-columns: 1fr; gap: 0; }
+    input:not([type='checkbox']), select, textarea { font-size: 16px; }
+    .renovation-actions { margin-top: 22px; }
+    .renovation-actions .primary { flex: 1; }
+    .renovation-actions button { padding-inline: 12px; font-size: 12px; }
+  }
+  @media(prefers-reduced-motion: reduce) { .renovation-actions button, .renovation-map rect { transition: none; } }
+</style>
