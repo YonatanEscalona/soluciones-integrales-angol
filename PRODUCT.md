@@ -22,4 +22,6 @@ Negro, amarillo y blanco. Una sola familia tipográfica, REM, y el logo existent
 
 ## Evidence
 
+Esta web es independiente del sitio general solucionesintegralesangol.cl: se enfoca en construcción de casas y servicios residenciales relacionados. Cada servicio tiene una página estática propia, información para cotizar, preguntas frecuentes y enlaces a WhatsApp y al planificador pertinente. Mantener contenido y URLs propios; no redirigir ni canonicalizar estas páginas al sitio general.
+
 Contacto y servicios consultados en https://solucionesintegralesangol.cl/. La construcción llave en mano y el planificador están solicitados en los mensajes del cliente aportados por el usuario. Fotografías del portafolio y modelos referenciales están diferenciados en la galería. No inventar precios, plazos o proyectos realizados.

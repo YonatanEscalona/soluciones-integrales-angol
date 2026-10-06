@@ -8,7 +8,8 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check:seo": "python scripts/check_seo.py"
   },
   "dependencies": {
     "@lucide/astro": "^1.35.0",

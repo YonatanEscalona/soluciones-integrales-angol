@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
 @layer base {
+  body { margin: 0; --ink: #171916; --ink-raised: #242720; --muted: #555954; --paper: #fff; --paper-light: #fff; --line: #d4d6d2; --yellow: #f3bd1c; --yellow-bright: #ffd33f; }
+  *:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
   html {
     scroll-behavior: smooth;
   }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 }

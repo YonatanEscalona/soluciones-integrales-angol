@@ -2,6 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import ProjectPlanner from '../components/ProjectPlanner.astro';
 import BudgetRequest from '../components/BudgetRequest.astro';
+import ServiceGuide from '../components/ServiceGuide.astro';
+import Faq from '../components/Faq.astro';
+import { homeQuestions } from '../data/services';
 
 const whatsapp = 'https://wa.me/56935172731';
 const asset = (path: string) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}${path}`;
@@ -55,8 +58,8 @@ const modelos = [
 ---
 
 <Layout
-  title="Construcción de casas, quinchos y radieres en Angol | Soluciones Integrales"
-  description="Construimos casas, quinchos y radieres en Angol y La Araucanía. Explora modelos y obras, y cotiza tu proyecto por WhatsApp."
+  title="Construcción de casas en Angol y La Araucanía | Soluciones Integrales"
+  description="Construcción de casas tradicionales y modulares, quinchos, radieres y remodelaciones en Angol y La Araucanía. Planifica tu idea y cotiza por WhatsApp."
 >
   <header class="site-header">
     <div class="header-inner">
@@ -84,6 +87,7 @@ const modelos = [
     </div>
   </header>
   <main id="inicio">
+    <div class="hero-shell">
     <div class="hero-layout">
       <section class="hero" aria-labelledby="hero-title">
         <img class="hero-photo" src={asset('/images/hero-casa-chilena.webp')} alt="Imagen ilustrativa de una casa chilena contemporánea de estuco claro, cubierta metálica y detalles en madera" width="1672" height="940" loading="eager" fetchpriority="high" decoding="async" />
@@ -122,7 +126,7 @@ const modelos = [
       <a class="planner-shortcut" href="#planifica">¿Tienes una idea? Planifica tu casa aquí</a>
     </div>
 
-  </main>
+    </div>
 
   <section class="works" id="obras" aria-labelledby="works-title">
     <div class="works-stage">
@@ -193,6 +197,7 @@ const modelos = [
     <div class="renovation-entry"><div><h3>¿Tu casa necesita un cambio?</h3><p>Elige los espacios y trabajos que te gustaría renovar.</p></div><a href="#remodela">Planificar una remodelación</a></div>
   </section>
 
+  <ServiceGuide />
   <ProjectPlanner />
 
   <section class="project-section" aria-labelledby="project-title">
@@ -209,11 +214,13 @@ const modelos = [
     </div>
   </section>
 
+  <Faq questions={homeQuestions} />
   <BudgetRequest />
+  </main>
 
   <footer class="site-footer">
     <div class="footer-inner">
-      <div><strong>Soluciones Integrales</strong><span>Construcción de casas, quinchos y radieres.</span></div>
+      <div><strong>Soluciones Integrales</strong><span>Construcción de casas, quinchos, radieres y remodelaciones.</span><a href="https://solucionesintegralesangol.cl/" target="_blank" rel="noopener noreferrer">Otros servicios de Soluciones Integrales</a></div>
       <div><span>Angol · La Araucanía</span><a href={whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp +56 9 3517 2731</a></div>
     </div>
   </footer>
@@ -311,8 +318,6 @@ const modelos = [
 </Layout>
 
 <style>
-  :global(body) { margin: 0; --ink: #171916; --ink-raised: #242720; --muted: #555954; --paper: #fff; --paper-light: #fff; --line: #d4d6d2; --yellow: #f3bd1c; --yellow-bright: #ffd33f; }
-  :global(*:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
   .site-header { position: relative; z-index: 20; background: #0d0f0d; border-bottom: 1px solid rgb(255 255 255 / .15); }
   .header-inner { position: relative; display: flex; align-items: center; gap: 28px; max-width: 1536px; min-height: 74px; margin: 0 auto; padding: 8px clamp(16px, 3.5vw, 56px); }
   .brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; margin-right: auto; color: #fff; text-decoration: none; }
@@ -326,7 +331,7 @@ const modelos = [
   .header-cta { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 17px; border-radius: 8px; background: var(--yellow); color: var(--ink); font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background-color 180ms ease-out; }
   .header-cta:hover { background: var(--yellow-bright); }
   .mobile-menu { display: none; }
-  main { background: var(--paper-light); min-height: 100svh; padding: 16px clamp(16px, 3.5vw, 56px) 64px; }
+  .hero-shell { background: var(--paper-light); min-height: 100svh; padding: 16px clamp(16px, 3.5vw, 56px) 64px; }
   .hero-layout { max-width: 1424px; margin: 0 auto; }
   .planner-shortcut { display: block; width: fit-content; margin: 24px auto 0; color: var(--ink); font-size: 13px; font-weight: 600; text-align: center; text-underline-offset: 5px; padding: 8px; }
   .hero { min-height: clamp(620px, 69vh, 740px); position: relative; isolation: isolate; overflow: hidden; border-radius: 24px; background: #0b0e0c; }
@@ -527,7 +532,7 @@ const modelos = [
     .footer-inner > div:last-child { margin-top: 24px; text-align: left; }
   }
   @media (max-width: 620px) {
-    main { padding: 0 0 48px; }
+    .hero-shell { padding: 0 0 48px; }
     .hero { min-height: 720px; border-radius: 8px; }
     .hero-photo { object-position: 55% center; }
     .hero::before { background: linear-gradient(180deg, rgb(11 14 12 / .84) 0%, rgb(11 14 12 / .68) 40%, rgb(11 14 12 / .22) 75%, rgb(11 14 12 / .12) 100%); }
